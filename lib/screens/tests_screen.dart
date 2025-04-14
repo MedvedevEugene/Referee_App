@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'chapter_selection_screen.dart';
 import 'favorites_options_screen.dart';
+import 'exam_test_screen.dart';
+import '../services/test_service.dart';
 
 class TestsScreen extends StatelessWidget {
   const TestsScreen({super.key});
@@ -91,6 +93,7 @@ class TestsScreen extends StatelessWidget {
 
   Widget _buildExamCard(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final testService = TestService();
     
     return Container(
       decoration: BoxDecoration(
@@ -105,52 +108,66 @@ class TestsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: () async {
+          final test = await testService.createExamTest();
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ExamTestScreen(test: test),
+              ),
+            );
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.school, color: Colors.blue[400], size: 24),
                   ),
-                  child: Icon(Icons.school, color: Colors.blue[400], size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Экзаменационный тест',
-                        style: textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Официальный тест для судей',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Экзаменационный тест',
+                          style: textTheme.titleMedium,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          'Официальный тест для судей',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildExamInfo(context, Icons.help_outline, '20 вопросов'),
-                _buildExamInfo(context, Icons.timer_outlined, '20 минут'),
-                _buildExamInfo(context, Icons.star_border, 'Проходной балл: 17'),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildExamInfo(context, Icons.help_outline, '20 вопросов'),
+                  _buildExamInfo(context, Icons.timer_outlined, '20 минут'),
+                  _buildExamInfo(context, Icons.star_border, 'Проходной балл: 17'),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
