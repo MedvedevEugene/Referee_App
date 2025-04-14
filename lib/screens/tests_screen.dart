@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'chapter_selection_screen.dart';
+import 'favorites_options_screen.dart';
 
 class TestsScreen extends StatelessWidget {
   const TestsScreen({super.key});
@@ -26,6 +28,14 @@ class TestsScreen extends StatelessWidget {
             iconBackground: Colors.indigo[50]!,
             title: 'Тесты по главам',
             subtitle: 'Тестирование по отдельным правилам',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChapterSelectionScreen(),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 12),
           _buildTestCard(
@@ -35,6 +45,14 @@ class TestsScreen extends StatelessWidget {
             iconBackground: Colors.red[50]!,
             title: 'Избранные вопросы',
             subtitle: 'Ваша персональная подборка',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FavoritesOptionsScreen(),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 12),
           _buildMarathonCard(context),
@@ -162,6 +180,7 @@ class TestsScreen extends StatelessWidget {
     required Color iconBackground,
     required String title,
     required String subtitle,
+    required VoidCallback onTap,
   }) {
     final textTheme = Theme.of(context).textTheme;
     
@@ -206,7 +225,7 @@ class TestsScreen extends StatelessWidget {
           size: 16,
           color: Colors.grey[400],
         ),
-        onTap: () {},
+        onTap: onTap,
       ),
     );
   }
@@ -269,7 +288,7 @@ class TestsScreen extends StatelessWidget {
                     Icon(Icons.help_outline, size: 16, color: Colors.grey[600]),
                     const SizedBox(width: 4),
                     Text(
-                      '203 вопроса',
+                      '210 вопросов',
                       style: textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
                       ),
