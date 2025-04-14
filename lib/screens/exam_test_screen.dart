@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/test_models.dart';
+import 'test_results_screen.dart';
 
 class ExamTestScreen extends StatefulWidget {
   final ExamTest test;
@@ -44,10 +45,18 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
 
   void _submitTest() {
     _timer.cancel();
-    setState(() {
-      _isSubmitted = true;
-    });
-    // TODO: Navigate to results screen
+    if (!mounted) return;
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TestResultsScreen(
+          test: widget.test,
+          userAnswers: widget.test.userAnswers,
+          timeSpent: widget.test.timeSpent,
+        ),
+      ),
+    );
   }
 
   void _scrollToCurrentQuestion() {
@@ -77,12 +86,20 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
   }
 
   int _findNextUnansweredQuestion() {
-    // Находим следующий неотвеченный вопрос после текущего
-    for (int i = 0; i < widget.test.questions.length; i++) {
+    // Сначала ищем следующий неотвеченный вопрос после текущего
+    for (int i = _currentQuestionIndex + 1; i < widget.test.questions.length; i++) {
       if (!_confirmedQuestions.contains(i)) {
         return i;
       }
     }
+    
+    // Если после текущего нет неотвеченных, ищем с начала
+    for (int i = 0; i < _currentQuestionIndex; i++) {
+      if (!_confirmedQuestions.contains(i)) {
+        return i;
+      }
+    }
+    
     return _currentQuestionIndex; // Если все вопросы отвечены, остаемся на текущем
   }
 
@@ -102,6 +119,9 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToCurrentQuestion();
         });
+      } else if (_confirmedQuestions.length == widget.test.questions.length) {
+        // Если все вопросы отвечены, завершаем тест
+        _submitTest();
       }
     });
   }
@@ -157,33 +177,28 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Экзаменационный тест',
-          style: textTheme.displaySmall,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
         ),
+        title: Text(
+          '${_remainingTime.inMinutes}:${(_remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
+          style: textTheme.titleLarge?.copyWith(
+            color: _remainingTime.inMinutes < 5 ? Colors.red : null,
+          ),
+        ),
+        centerTitle: true,
         actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                '${_remainingTime.inMinutes}:${(_remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
-                style: textTheme.titleMedium?.copyWith(
-                  color: _remainingTime.inMinutes < 5 ? Colors.red : null,
-                ),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.favorite_border),
+            onPressed: () {
+              // TODO: Implement favorite functionality
+            },
           ),
         ],
       ),
       body: Column(
         children: [
-          // Progress indicator
-          LinearProgressIndicator(
-            value: (_currentQuestionIndex + 1) / widget.test.questions.length,
-            backgroundColor: Colors.blue[50],
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[400]!),
-          ),
-          
           // Question number row
           Padding(
             padding: const EdgeInsets.all(16),
@@ -241,7 +256,8 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
                   style: textTheme.titleLarge,
                 ),
                 const SizedBox(height: 24),
-                ...question.options.map((option) => Padding(
+                // Варианты ответов
+                ...widget.test.getShuffledOptions(question.id).map((option) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Container(
                     decoration: BoxDecoration(
@@ -302,31 +318,32 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
                     ),
                   ),
                 )),
+                const SizedBox(height: 60), // Уменьшаем отступ снизу для контента
               ],
             ),
           ),
-          
-          // Bottom button
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
-              onPressed: selectedAnswer != null && !isConfirmed
-                  ? _confirmAnswer
-                  : null,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                backgroundColor: Colors.blue[400],
-                foregroundColor: Colors.white,
-              ),
-              child: Text(
-                'Подтвердить ответ',
-                style: textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                ),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8), // Уменьшаем отступ снизу для кнопки
+          child: ElevatedButton(
+            onPressed: selectedAnswer != null && !isConfirmed
+                ? _confirmAnswer
+                : null,
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+              backgroundColor: Colors.blue[400],
+              foregroundColor: Colors.white,
+            ),
+            child: Text(
+              'Подтвердить ответ',
+              style: textTheme.titleMedium?.copyWith(
+                color: Colors.white,
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

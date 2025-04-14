@@ -42,12 +42,31 @@ class ExamTest {
   final List<Question> questions;
   final DateTime startTime;
   Map<int, String> userAnswers = {};
+  final Map<int, List<String>> shuffledOptions = {};
+  final Map<int, Map<String, String>> optionsMap = {};
   
   ExamTest({
     required this.questions,
     required this.startTime,
   }) {
     assert(questions.length == questionCount, 'Exam test must have exactly $questionCount questions');
+    
+    // Перемешиваем варианты ответов для каждого вопроса
+    for (var question in questions) {
+      // Создаем копию вариантов ответов
+      final options = List<String>.from(question.options);
+      // Перемешиваем варианты
+      options.shuffle();
+      // Сохраняем перемешанные варианты
+      shuffledOptions[question.id] = options;
+      
+      // Создаем соответствие между перемешанными и оригинальными вариантами
+      final mapping = <String, String>{};
+      for (int i = 0; i < options.length; i++) {
+        mapping[options[i]] = question.options[i];
+      }
+      optionsMap[question.id] = mapping;
+    }
   }
 
   bool get isTimeUp => DateTime.now().difference(startTime).inMinutes >= timeLimit;
@@ -56,7 +75,9 @@ class ExamTest {
     int correct = 0;
     userAnswers.forEach((questionId, userAnswer) {
       final question = questions.firstWhere((q) => q.id == questionId);
-      if (userAnswer == question.answer) correct++;
+      // Преобразуем ответ пользователя в оригинальный вариант
+      final originalAnswer = optionsMap[questionId]?[userAnswer] ?? userAnswer;
+      if (originalAnswer == question.answer) correct++;
     });
     return correct;
   }
@@ -69,5 +90,10 @@ class ExamTest {
   
   void submitAnswer(int questionId, String answer) {
     userAnswers[questionId] = answer;
+  }
+
+  // Получить перемешанные варианты ответов для вопроса
+  List<String> getShuffledOptions(int questionId) {
+    return shuffledOptions[questionId] ?? [];
   }
 } 
