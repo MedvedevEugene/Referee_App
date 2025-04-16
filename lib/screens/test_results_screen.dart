@@ -130,7 +130,7 @@ class TestResultsScreen extends StatelessWidget {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: isCorrect ? Colors.green : Colors.red,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -139,6 +139,7 @@ class TestResultsScreen extends StatelessWidget {
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                         ),

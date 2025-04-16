@@ -10,6 +10,7 @@ class TestsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final testService = TestService();
     
     return Scaffold(
       appBar: AppBar(
@@ -58,33 +59,15 @@ class TestsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildMarathonCard(context),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'История тестов',
-                style: textTheme.headlineMedium,
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Показать все',
-                  style: textTheme.labelLarge?.copyWith(
-                    color: Colors.blue[600],
-                  ),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 12),
-          _buildHistoryCard(
+          _buildTestCard(
             context: context,
-            title: 'Экзаменационный тест',
-            score: '35/40',
-            percentage: '88%',
-            date: '11.4.2025',
-            duration: '42 мин',
+            icon: Icons.history,
+            iconColor: Colors.green[600]!,
+            iconBackground: Colors.green[50]!,
+            title: 'История тестов',
+            subtitle: 'Результаты предыдущих тестов',
+            onTap: () {},
           ),
         ],
       ),
@@ -328,82 +311,6 @@ class TestsScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHistoryCard({
-    required BuildContext context,
-    required String title,
-    required String score,
-    required String percentage,
-    required String date,
-    required String duration,
-  }) {
-    final textTheme = Theme.of(context).textTheme;
-    
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 0,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(Icons.school, color: Colors.blue[400], size: 24),
-        ),
-        title: Text(
-          title,
-          style: textTheme.titleMedium,
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            '$date • $duration',
-            style: textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              score,
-              style: textTheme.titleMedium,
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                percentage,
-                style: textTheme.labelSmall?.copyWith(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

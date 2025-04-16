@@ -42,43 +42,29 @@ class ExamTest {
   final List<Question> questions;
   final DateTime startTime;
   Map<int, String> userAnswers = {};
-  final Map<int, List<String>> shuffledOptions = {};
-  final Map<int, Map<String, String>> optionsMap = {};
   
   ExamTest({
     required this.questions,
     required this.startTime,
   }) {
     assert(questions.length == questionCount, 'Exam test must have exactly $questionCount questions');
-    
-    // Перемешиваем варианты ответов для каждого вопроса
-    for (var question in questions) {
-      // Создаем копию вариантов ответов
-      final options = List<String>.from(question.options);
-      // Перемешиваем варианты
-      options.shuffle();
-      // Сохраняем перемешанные варианты
-      shuffledOptions[question.id] = options;
-      
-      // Создаем соответствие между перемешанными и оригинальными вариантами
-      final mapping = <String, String>{};
-      for (int i = 0; i < options.length; i++) {
-        mapping[options[i]] = question.options[i];
-      }
-      optionsMap[question.id] = mapping;
-    }
   }
 
   bool get isTimeUp => DateTime.now().difference(startTime).inMinutes >= timeLimit;
   
   int get score {
     int correct = 0;
+    print('Calculating score...');
     userAnswers.forEach((questionId, userAnswer) {
       final question = questions.firstWhere((q) => q.id == questionId);
-      // Преобразуем ответ пользователя в оригинальный вариант
-      final originalAnswer = optionsMap[questionId]?[userAnswer] ?? userAnswer;
-      if (originalAnswer == question.answer) correct++;
+      if (userAnswer == question.answer) {
+        correct++;
+        print('Question $questionId: Correct!');
+      } else {
+        print('Question $questionId: Wrong! User answer: $userAnswer');
+      }
     });
+    print('Total correct answers: $correct out of ${userAnswers.length} answered');
     return correct;
   }
 
@@ -92,8 +78,9 @@ class ExamTest {
     userAnswers[questionId] = answer;
   }
 
-  // Получить перемешанные варианты ответов для вопроса
+  // Получить варианты ответов для вопроса (теперь без перемешивания)
   List<String> getShuffledOptions(int questionId) {
-    return shuffledOptions[questionId] ?? [];
+    final question = questions.firstWhere((q) => q.id == questionId);
+    return question.options;
   }
 } 
