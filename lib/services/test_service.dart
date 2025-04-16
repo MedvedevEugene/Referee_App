@@ -19,16 +19,11 @@ class TestService {
     final questions = await _loadQuestions();
     final random = Random();
     
-    // Создаем копию списка для случайного выбора
-    final availableQuestions = List<Question>.from(questions);
-    final selectedQuestions = <Question>[];
+    // Перемешиваем весь список вопросов
+    questions.shuffle(random);
     
-    // Выбираем 20 случайных вопросов
-    while (selectedQuestions.length < ExamTest.questionCount && availableQuestions.isNotEmpty) {
-      final index = random.nextInt(availableQuestions.length);
-      selectedQuestions.add(availableQuestions[index]);
-      availableQuestions.removeAt(index);
-    }
+    // Выбираем первые 20 вопросов из перемешанного списка
+    final selectedQuestions = questions.take(ExamTest.questionCount).toList();
     
     return ExamTest(
       questions: selectedQuestions,
