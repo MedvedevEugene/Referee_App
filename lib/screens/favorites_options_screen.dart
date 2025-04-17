@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/test_service.dart';
+import 'favorite_questions_screen.dart';
+import 'exam_test_screen.dart';
 
 class FavoritesOptionsScreen extends StatelessWidget {
   const FavoritesOptionsScreen({super.key});
@@ -6,6 +9,7 @@ class FavoritesOptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final testService = TestService();
     
     return Scaffold(
       appBar: AppBar(
@@ -60,11 +64,10 @@ class FavoritesOptionsScreen extends StatelessWidget {
                   color: Colors.grey[400],
                 ),
                 onTap: () {
-                  // TODO: Будет добавлена навигация к просмотру избранных вопросов
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Просмотр избранных будет доступен позже'),
-                      duration: Duration(seconds: 1),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FavoriteQuestionsScreen(),
                     ),
                   );
                 },
@@ -112,14 +115,28 @@ class FavoritesOptionsScreen extends StatelessWidget {
                   size: 16,
                   color: Colors.grey[400],
                 ),
-                onTap: () {
-                  // TODO: Будет добавлена навигация к тесту по избранным вопросам
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Тест по избранным будет доступен позже'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
+                onTap: () async {
+                  final test = await testService.createFavoritesTest();
+                  if (test == null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('У вас пока нет избранных вопросов'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                    return;
+                  }
+                  
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ExamTestScreen(test: test),
+                      ),
+                    );
+                  }
                 },
               ),
             ),

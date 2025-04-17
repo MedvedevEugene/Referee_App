@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/test_models.dart';
 import 'test_results_screen.dart';
+import '../services/favorites_service.dart';
 
 class ExamTestScreen extends StatefulWidget {
   final ExamTest test;
@@ -244,10 +245,25 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
           ),
           centerTitle: true,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.favorite_border),
-              onPressed: () {
-                // TODO: Implement favorite functionality
+            FutureBuilder(
+              future: FavoritesService.create(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox.shrink();
+                }
+                final favoritesService = snapshot.data as FavoritesService;
+                final isFavorite = favoritesService.isFavorite(question.id);
+                
+                return IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : null,
+                  ),
+                  onPressed: () async {
+                    await favoritesService.toggleFavorite(question.id);
+                    setState(() {}); // Обновляем UI
+                  },
+                );
               },
             ),
           ],

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/test_models.dart';
 import 'exam_test_screen.dart';
+import '../services/favorites_service.dart';
 
-class TestResultsScreen extends StatelessWidget {
+class TestResultsScreen extends StatefulWidget {
   final ExamTest test;
   final Map<int, String> userAnswers;
   final Duration timeSpent;
@@ -13,6 +14,23 @@ class TestResultsScreen extends StatelessWidget {
     required this.userAnswers,
     required this.timeSpent,
   });
+
+  @override
+  State<TestResultsScreen> createState() => _TestResultsScreenState();
+}
+
+class _TestResultsScreenState extends State<TestResultsScreen> {
+  late ExamTest test;
+  late Map<int, String> userAnswers;
+  late Duration timeSpent;
+
+  @override
+  void initState() {
+    super.initState();
+    test = widget.test;
+    userAnswers = widget.userAnswers;
+    timeSpent = widget.timeSpent;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,9 +173,25 @@ class TestResultsScreen extends StatelessWidget {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.favorite_border),
-                        onPressed: () {
-                          // TODO: Implement favorite functionality
+                        icon: FutureBuilder(
+                          future: FavoritesService.create(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return const Icon(Icons.favorite_border);
+                            }
+                            final favoritesService = snapshot.data as FavoritesService;
+                            final isFavorite = favoritesService.isFavorite(question.id);
+                            
+                            return Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: isFavorite ? Colors.red : null,
+                            );
+                          },
+                        ),
+                        onPressed: () async {
+                          final favoritesService = await FavoritesService.create();
+                          await favoritesService.toggleFavorite(question.id);
+                          setState(() {}); // Обновляем UI
                         },
                       ),
                     ],
