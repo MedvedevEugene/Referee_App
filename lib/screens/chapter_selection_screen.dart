@@ -30,7 +30,7 @@ class ChapterSelectionScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Правила по главам',
+          'Тесты по главам',
           style: textTheme.displaySmall,
         ),
       ),
