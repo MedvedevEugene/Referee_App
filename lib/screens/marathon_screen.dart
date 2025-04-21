@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
 import '../models/test_models.dart';
+import '../services/favorites_service.dart';
 import 'marathon_results_screen.dart';
 
 class MarathonScreen extends StatefulWidget {
@@ -22,10 +23,14 @@ class _MarathonScreenState extends State<MarathonScreen> {
   final ScrollController _scrollController = ScrollController();
   Set<int> _confirmedQuestions = {};
   final Map<int, List<String>> _shuffledOptions = {};
+  late FavoritesService _favoritesService;
+  Set<int> _favoriteQuestions = {};
 
   @override
   void initState() {
     super.initState();
+    _initializeFavorites();
+    
     // Предварительно перемешиваем варианты ответов для всех вопросов
     for (int i = 0; i < widget.test.totalQuestions; i++) {
       _shuffledOptions[i] = [...widget.test.questions[i].options]..shuffle();
@@ -38,6 +43,24 @@ class _MarathonScreenState extends State<MarathonScreen> {
     
     // Устанавливаем текущий ответ, если он есть
     _selectedAnswer = widget.test.getAnswer(_currentQuestionIndex);
+  }
+
+  Future<void> _initializeFavorites() async {
+    _favoritesService = await FavoritesService.create();
+    setState(() {
+      _favoriteQuestions = _favoritesService.getFavoriteIds();
+    });
+  }
+
+  Future<void> _toggleFavorite(int questionId) async {
+    await _favoritesService.toggleFavorite(questionId);
+    setState(() {
+      if (_favoriteQuestions.contains(questionId)) {
+        _favoriteQuestions.remove(questionId);
+      } else {
+        _favoriteQuestions.add(questionId);
+      }
+    });
   }
 
   @override
@@ -176,6 +199,7 @@ class _MarathonScreenState extends State<MarathonScreen> {
     final textTheme = Theme.of(context).textTheme;
     final isConfirmed = _confirmedQuestions.contains(_currentQuestionIndex);
     final options = _getOptionsForQuestion(_currentQuestionIndex);
+    final isFavorite = _favoriteQuestions.contains(question.id);
 
     return WillPopScope(
       onWillPop: () async {
@@ -236,6 +260,15 @@ class _MarathonScreenState extends State<MarathonScreen> {
             style: textTheme.titleLarge,
           ),
           centerTitle: true,
+          actions: [
+            IconButton(
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : null,
+              ),
+              onPressed: () => _toggleFavorite(question.id),
+            ),
+          ],
         ),
         body: Column(
           children: [
