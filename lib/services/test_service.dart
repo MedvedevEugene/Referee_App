@@ -16,6 +16,10 @@ class TestService {
     return _allQuestions!;
   }
 
+  Future<List<Question>> getAllQuestions() async {
+    return await loadQuestions();
+  }
+
   Future<ExamTest> createExamTest() async {
     final questions = await loadQuestions();
     final random = Random();
