@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/test_service.dart';
 import 'favorite_questions_screen.dart';
-import 'exam_test_screen.dart';
+import 'favorite_test_screen.dart';
+import '../models/favorite_test.dart';
 
 class FavoritesOptionsScreen extends StatelessWidget {
   const FavoritesOptionsScreen({super.key});
@@ -9,7 +10,6 @@ class FavoritesOptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final testService = TestService();
     
     return Scaffold(
       appBar: AppBar(
@@ -116,7 +116,7 @@ class FavoritesOptionsScreen extends StatelessWidget {
                   color: Colors.grey[400],
                 ),
                 onTap: () async {
-                  final test = await testService.createFavoritesTest();
+                  final test = await FavoriteTest.create();
                   if (test == null) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -133,7 +133,7 @@ class FavoritesOptionsScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ExamTestScreen(test: test),
+                        builder: (context) => FavoriteTestScreen(test: test),
                       ),
                     );
                   }
