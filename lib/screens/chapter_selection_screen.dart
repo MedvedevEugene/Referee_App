@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/chapter_test.dart';
+import 'chapter_test_screen.dart';
 
 class ChapterSelectionScreen extends StatelessWidget {
   const ChapterSelectionScreen({super.key});
@@ -31,11 +33,11 @@ class ChapterSelectionScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Тесты по главам',
-          style: textTheme.displaySmall,
+          style: textTheme.titleLarge,
         ),
       ),
       body: ListView.builder(
-        itemCount: 17,
+        itemCount: chapterTitles.length,
         padding: const EdgeInsets.all(16),
         itemBuilder: (context, index) {
           final chapterNumber = index + 1;
@@ -87,14 +89,27 @@ class ChapterSelectionScreen extends StatelessWidget {
                 size: 16,
                 color: Colors.grey[400],
               ),
-              onTap: () {
-                // TODO: Будем добавлять навигацию к тесту конкретной главы позже
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Выбрана глава $chapterNumber'),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
+              onTap: () async {
+                try {
+                  final test = await ChapterTest.create(chapterNumber);
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChapterTestScreen(test: test),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Ошибка при загрузке теста: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
             ),
           );
