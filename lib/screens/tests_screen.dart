@@ -247,82 +247,52 @@ class TestsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MarathonOptionsScreen(),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.purple[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(Icons.local_fire_department, color: Colors.purple[400], size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Марафон',
-                          style: textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Тест на выносливость и скорость',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildMarathonInfo(context, Icons.help_outline, '50 вопросов'),
-                  _buildMarathonInfo(context, Icons.timer_outlined, 'Без ограничений'),
-                  _buildMarathonInfo(context, Icons.star_border, 'Сохранение прогресса'),
-                ],
-              ),
-            ],
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.purple[50],
+            borderRadius: BorderRadius.circular(8),
           ),
+          child: Icon(Icons.local_fire_department, color: Colors.purple[400], size: 24),
+        ),
+        title: Text(
+          'Марафон',
+          style: textTheme.titleMedium,
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Тест на выносливость и скорость',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _buildExamInfo(context, Icons.help_outline, '210 вопросов'),
+                const SizedBox(width: 16),
+                _buildExamInfo(context, Icons.timer_outlined, 'Без ограничений'),
+              ],
+            ),
+          ],
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: Colors.grey[400],
+        ),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MarathonOptionsScreen()),
         ),
       ),
-    );
-  }
-
-  Widget _buildMarathonInfo(BuildContext context, IconData icon, String text) {
-    final textTheme = Theme.of(context).textTheme;
-    
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
     );
   }
 }

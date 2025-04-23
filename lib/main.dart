@@ -3,8 +3,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_screen.dart';
 import 'screens/rules_screen.dart';
 import 'screens/tests_screen.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Устанавливаем прозрачность для всех системных оверлеев
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+    overlays: [SystemUiOverlay.top],
+  );
+  
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarContrastEnforced: false,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+  
   runApp(const RefereeApp());
 }
 
@@ -90,6 +110,8 @@ class RefereeApp extends StatelessWidget {
         colorScheme: ColorScheme.light(
           primary: Colors.blue[600]!,
           secondary: Colors.blue[400]!,
+          background: const Color(0xFFF5F6FA),
+          surface: Colors.white,
         ),
         scaffoldBackgroundColor: const Color(0xFFF5F6FA),
         appBarTheme: AppBarTheme(
@@ -157,11 +179,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           indicatorColor: Colors.transparent,
-          onDestinationSelected: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
+          elevation: 0,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             NavigationDestination(
               icon: Icon(
@@ -185,7 +204,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: 'Тесты',
             ),
           ],
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          onDestinationSelected: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
         ),
       ),
     );

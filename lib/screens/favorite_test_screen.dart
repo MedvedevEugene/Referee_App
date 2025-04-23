@@ -321,22 +321,31 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
         bottomNavigationBar: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: ElevatedButton(
-              onPressed: _selectedAnswer != null && !isConfirmed
-                  ? _confirmAnswer
-                  : null,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                backgroundColor: Colors.blue[400],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: Positioned(
+              left: 16,
+              right: 16,
+              bottom: 24,
+              child: ElevatedButton(
+                onPressed: _selectedAnswer != null && !_confirmedQuestions.contains(_currentQuestionIndex)
+                    ? _confirmAnswer
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  backgroundColor: _selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.25),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.blue.withOpacity(0.2),
+                  disabledForegroundColor: Colors.white.withOpacity(0.7),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
                 ),
-              ),
-              child: Text(
-                'Подтвердить ответ',
-                style: textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                child: Text(
+                  'Подтвердить ответ',
+                  style: textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

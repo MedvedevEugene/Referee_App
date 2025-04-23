@@ -16,6 +16,7 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
   int _currentQuestionIndex = 0;
   Set<int> _confirmedQuestions = {};
   final ScrollController _scrollController = ScrollController();
+  String? _selectedAnswer;
 
   @override
   void initState() {
@@ -297,7 +298,7 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
                       ),
                     ),
                   )),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -305,15 +306,22 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
         ),
         bottomNavigationBar: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            padding: const EdgeInsets.all(16),
             child: ElevatedButton(
               onPressed: selectedAnswer != null && !isConfirmed
                   ? _confirmAnswer
                   : null,
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
-                backgroundColor: Colors.blue[400],
+                backgroundColor: selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.25),
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.blue.withOpacity(0.2),
+                disabledForegroundColor: Colors.white.withOpacity(0.7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+                shadowColor: Colors.transparent,
               ),
               child: Text(
                 'Подтвердить ответ',
