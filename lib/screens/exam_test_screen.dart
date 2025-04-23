@@ -406,7 +406,7 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
                     : null,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
-                  backgroundColor: selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.7),
+                  backgroundColor: selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.25),
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.blue.withOpacity(0.2),
                   disabledForegroundColor: Colors.white.withOpacity(0.7),
