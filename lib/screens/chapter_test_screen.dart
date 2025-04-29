@@ -307,26 +307,22 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
         bottomNavigationBar: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
+            child: FilledButton(
               onPressed: selectedAnswer != null && !isConfirmed
                   ? _confirmAnswer
                   : null,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                backgroundColor: selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.25),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.blue.withOpacity(0.2),
-                disabledForegroundColor: Colors.white.withOpacity(0.7),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.blue[600],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 0,
-                shadowColor: Colors.transparent,
               ),
               child: Text(
-                'Подтвердить ответ',
+                'Подтвердить',
                 style: textTheme.titleMedium?.copyWith(
                   color: Colors.white,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
