@@ -16,12 +16,20 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
   int _currentQuestionIndex = 0;
   Set<int> _confirmedQuestions = {};
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _questionScrollController = ScrollController();
   String? _selectedAnswer;
 
   @override
   void initState() {
     super.initState();
     _test = widget.test;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _questionScrollController.dispose();
+    super.dispose();
   }
 
   void _scrollToCurrentQuestion() {
@@ -33,6 +41,15 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
     
     _scrollController.animateTo(
       offset.clamp(0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollToTop() {
+    if (!_questionScrollController.hasClients) return;
+    _questionScrollController.animateTo(
+      0,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
@@ -79,6 +96,7 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
         _currentQuestionIndex = nextQuestion;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToCurrentQuestion();
+          _scrollToTop();
         });
       } else if (_confirmedQuestions.length == _test.questions.length) {
         // Если все вопросы отвечены, завершаем тест
@@ -197,6 +215,7 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
                           _currentQuestionIndex = index;
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             _scrollToCurrentQuestion();
+                            _scrollToTop();
                           });
                         });
                       },
@@ -231,6 +250,7 @@ class _ChapterTestScreenState extends State<ChapterTestScreen> {
             // Question and answers
             Expanded(
               child: ListView(
+                controller: _questionScrollController,
                 padding: const EdgeInsets.all(16),
                 children: [
                   Text(

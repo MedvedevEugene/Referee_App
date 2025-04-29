@@ -23,6 +23,7 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
   bool _isSubmitted = false;
   Set<int> _confirmedQuestions = {};
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _questionScrollController = ScrollController();
 
   @override
   void initState() {
@@ -119,6 +120,11 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
         _currentQuestionIndex = nextQuestion;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollToCurrentQuestion();
+          _questionScrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         });
       } else if (_confirmedQuestions.length == widget.test.questions.length) {
         // Если все вопросы отвечены, завершаем тест
@@ -150,6 +156,13 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
     if (_currentQuestionIndex < widget.test.questions.length - 1) {
       setState(() {
         _currentQuestionIndex++;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _questionScrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        });
       });
     }
   }
@@ -158,6 +171,13 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
     if (_currentQuestionIndex > 0) {
       setState(() {
         _currentQuestionIndex--;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _questionScrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        });
       });
     }
   }
@@ -166,6 +186,7 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
   void dispose() {
     _timer.cancel();
     _scrollController.dispose();
+    _questionScrollController.dispose();
     super.dispose();
   }
 
@@ -288,6 +309,11 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
                               _currentQuestionIndex = index;
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 _scrollToCurrentQuestion();
+                                _questionScrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
                               });
                             });
                           },
@@ -322,6 +348,7 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
                 // Question and answers
                 Expanded(
                   child: ListView(
+                    controller: _questionScrollController,
                     padding: const EdgeInsets.all(16),
                     children: [
                       Text(

@@ -18,6 +18,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
   int _currentQuestionIndex = 0;
   String? _selectedAnswer;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _questionScrollController = ScrollController();
   Set<int> _confirmedQuestions = {};
   final Map<int, List<String>> _shuffledOptions = {};
 
@@ -33,7 +34,17 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _questionScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (!_questionScrollController.hasClients) return;
+    _questionScrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _scrollToCurrentQuestion() {
@@ -105,6 +116,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
         _currentQuestionIndex = nextQuestion;
         _selectedAnswer = null;
         _scrollToCurrentQuestion();
+        _scrollToTop();
       }
     });
   }
@@ -214,6 +226,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
                         Future.delayed(const Duration(milliseconds: 50), () {
                           if (!mounted) return;
                           _scrollToCurrentQuestion();
+                          _scrollToTop();
                         });
                       },
                       child: Container(
@@ -247,6 +260,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
             // Question and answers
             Expanded(
               child: ListView(
+                controller: _questionScrollController,
                 padding: const EdgeInsets.all(16),
                 children: [
                   Text(
