@@ -21,6 +21,7 @@ class _MarathonScreenState extends State<MarathonScreen> {
   int _currentQuestionIndex = 0;
   String? _selectedAnswer;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _questionScrollController = ScrollController();
   Set<int> _confirmedQuestions = {};
   final Map<int, List<String>> _shuffledOptions = {};
   late FavoritesService _favoritesService;
@@ -66,13 +67,13 @@ class _MarathonScreenState extends State<MarathonScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _questionScrollController.dispose();
     super.dispose();
   }
 
   void _scrollToCurrentQuestion() {
     if (!mounted) return;
     
-    // Добавляем небольшую задержку, чтобы дать время на инициализацию ScrollController
     Future.delayed(const Duration(milliseconds: 100), () {
       if (!mounted || !_scrollController.hasClients) return;
       
@@ -87,7 +88,24 @@ class _MarathonScreenState extends State<MarathonScreen> {
           curve: Curves.easeInOut,
         );
       } catch (e) {
-        // Игнорируем ошибки прокрутки
+        print('Scroll error: $e');
+      }
+    });
+  }
+
+  void _scrollToQuestionTop() {
+    if (!mounted) return;
+    
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted || !_questionScrollController.hasClients) return;
+      
+      try {
+        _questionScrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      } catch (e) {
         print('Scroll error: $e');
       }
     });
@@ -121,45 +139,40 @@ class _MarathonScreenState extends State<MarathonScreen> {
   void _confirmAnswer() async {
     if (_selectedAnswer == null) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
-      widget.test.submitAnswer(_currentQuestionIndex, _selectedAnswer!);
-      await widget.test.saveProgress();
-
-      setState(() {
-        _confirmedQuestions.add(_currentQuestionIndex);
-        
-        if (_confirmedQuestions.length == widget.test.totalQuestions) {
-          _showResults();
-          return;
-        }
-
-        // Находим следующий неотвеченный вопрос
-        final nextQuestion = _findNextUnansweredQuestion();
-        if (nextQuestion != _currentQuestionIndex) {
-          _currentQuestionIndex = nextQuestion;
-          _selectedAnswer = widget.test.getAnswer(nextQuestion); // Восстанавливаем сохраненный ответ
-          _scrollToCurrentQuestion();
-        }
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+      widget.test.userAnswers[_currentQuestionIndex] = _selectedAnswer!;
+      _confirmedQuestions.add(_currentQuestionIndex);
+      
+      if (_confirmedQuestions.length == widget.test.questions.length) {
+        await widget.test.saveProgress();
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MarathonResultsScreen(test: widget.test),
           ),
-        ),
-      );
+        );
+        return;
+      }
+
+      final nextQuestion = _findNextUnansweredQuestion();
+      if (nextQuestion != _currentQuestionIndex) {
+        setState(() {
+          _currentQuestionIndex = nextQuestion;
+          _selectedAnswer = widget.test.userAnswers[_currentQuestionIndex];
+        });
+        _scrollToCurrentQuestion();
+        _scrollToQuestionTop();
+      }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -191,6 +204,20 @@ class _MarathonScreenState extends State<MarathonScreen> {
 
   List<String> _getOptionsForQuestion(int index) {
     return _shuffledOptions[index] ?? widget.test.questions[index].options;
+  }
+
+  void _moveToQuestion(int index) {
+    if (_isLoading) return;
+    setState(() {
+      _currentQuestionIndex = index;
+      _selectedAnswer = widget.test.getAnswer(index);
+    });
+    
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (!mounted) return;
+      _scrollToCurrentQuestion();
+      _scrollToQuestionTop();
+    });
   }
 
   @override
@@ -283,18 +310,7 @@ class _MarathonScreenState extends State<MarathonScreen> {
                   children: List.generate(
                     widget.test.totalQuestions,
                     (index) => GestureDetector(
-                      onTap: () {
-                        if (_isLoading) return;
-                        setState(() {
-                          _currentQuestionIndex = index;
-                          _selectedAnswer = widget.test.getAnswer(index);
-                        });
-                        
-                        Future.delayed(const Duration(milliseconds: 50), () {
-                          if (!mounted) return;
-                          _scrollToCurrentQuestion();
-                        });
-                      },
+                      onTap: () => _moveToQuestion(index),
                       child: Container(
                         width: 36,
                         height: 36,
@@ -326,7 +342,8 @@ class _MarathonScreenState extends State<MarathonScreen> {
             // Question and answers
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                controller: _questionScrollController,
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                 children: [
                   Text(
                     question.question,
