@@ -331,98 +331,88 @@ class _ExamTestScreenState extends State<ExamTestScreen> {
                       const SizedBox(height: 24),
                       ...widget.test.getShuffledOptions(question.id).map((option) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedAnswer == option
-                                ? Colors.blue[50]
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                        child: InkWell(
+                          onTap: isConfirmed ? null : () => _selectAnswer(option),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            decoration: BoxDecoration(
                               color: selectedAnswer == option
-                                  ? Colors.blue[400]!
-                                  : Colors.grey[300]!,
-                            ),
-                          ),
-                          child: InkWell(
-                            onTap: () => _selectAnswer(option),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 24,
-                                    height: 24,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: selectedAnswer == option
-                                            ? Colors.blue[400]!
-                                            : Colors.grey[400]!,
-                                        width: 2,
-                                      ),
-                                      color: selectedAnswer == option
-                                          ? Colors.blue[400]
-                                          : Colors.white,
-                                    ),
-                                    child: selectedAnswer == option
-                                        ? const Icon(
-                                            Icons.check,
-                                            size: 16,
-                                            color: Colors.white,
-                                          )
-                                        : null,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Text(
-                                      option,
-                                      style: textTheme.bodyLarge?.copyWith(
-                                        color: isConfirmed
-                                            ? Colors.grey[600]
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                  ? Colors.blue[50]
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: selectedAnswer == option
+                                    ? Colors.blue[400]!
+                                    : Colors.grey[300]!,
                               ),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: selectedAnswer == option
+                                          ? Colors.blue[400]!
+                                          : Colors.grey[400]!,
+                                      width: 2,
+                                    ),
+                                    color: selectedAnswer == option
+                                        ? Colors.blue[400]
+                                        : Colors.white,
+                                  ),
+                                  child: selectedAnswer == option
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    option,
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      color: isConfirmed
+                                          ? Colors.grey[600]
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       )),
+                      if (selectedAnswer != null && !isConfirmed) ...[
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          onPressed: _confirmAnswer,
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.blue[600],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Подтвердить',
+                            style: textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 80),
                     ],
                   ),
                 ),
               ],
-            ),
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
-              child: ElevatedButton(
-                onPressed: selectedAnswer != null && !isConfirmed
-                    ? _confirmAnswer
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
-                  backgroundColor: selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.25),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.blue.withOpacity(0.2),
-                  disabledForegroundColor: Colors.white.withOpacity(0.7),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Text(
-                  'Подтвердить ответ',
-                  style: textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
             ),
           ],
         ),
