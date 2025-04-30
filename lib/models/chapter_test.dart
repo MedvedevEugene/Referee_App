@@ -70,10 +70,16 @@ class ChapterTest {
   static Future<ChapterTest> create(int chapterNumber) async {
     final String jsonString = await rootBundle.loadString('assets/json/${chapterNumber}_football_rule.json');
     final List<dynamic> jsonList = json.decode(jsonString);
-    final questions = jsonList.map((json) => ChapterQuestion.fromJson(json)).toList();
-    questions.shuffle();
+    final allQuestions = jsonList.map((json) => ChapterQuestion.fromJson(json)).toList();
+    
+    // Перемешиваем все вопросы
+    allQuestions.shuffle();
+    
+    // Берем только первые 10 вопросов (или меньше, если вопросов меньше 10)
+    final selectedQuestions = allQuestions.take(10).toList();
+    
     return ChapterTest(
-      questions: questions,
+      questions: selectedQuestions,
       chapterNumber: chapterNumber,
       startTime: DateTime.now(),
     );
