@@ -222,7 +222,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
                       onTap: () {
                         setState(() {
                           _currentQuestionIndex = index;
-                          _selectedAnswer = widget.test.getAnswer(index);
+                          _selectedAnswer = null;
                         });
                         
                         WidgetsBinding.instance.addPostFrameCallback((_) {
