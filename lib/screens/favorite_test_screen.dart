@@ -115,8 +115,10 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
       if (nextQuestion != _currentQuestionIndex) {
         _currentQuestionIndex = nextQuestion;
         _selectedAnswer = null;
-        _scrollToCurrentQuestion();
-        _scrollToTop();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToCurrentQuestion();
+          _scrollToTop();
+        });
       }
     });
   }
@@ -130,7 +132,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
                        widget.test.getAnswer(index);
       return isCorrect ? Colors.green[400]! : Colors.red[400]!;
     }
-    return widget.test.getAnswer(index) != null ? Colors.blue[100]! : Colors.grey[200]!;
+    return Colors.white;
   }
 
   List<String> _getOptionsForQuestion(int index) {
@@ -223,8 +225,7 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
                           _selectedAnswer = widget.test.getAnswer(index);
                         });
                         
-                        Future.delayed(const Duration(milliseconds: 50), () {
-                          if (!mounted) return;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
                           _scrollToCurrentQuestion();
                           _scrollToTop();
                         });
@@ -326,44 +327,31 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
                       ),
                     ),
                   )),
-                  const SizedBox(height: 60),
+                  if (_selectedAnswer != null && !isConfirmed) ...[
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: _confirmAnswer,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.blue[600],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Подтвердить',
+                        style: textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
-              child: ElevatedButton(
-                onPressed: _selectedAnswer != null && !_confirmedQuestions.contains(_currentQuestionIndex)
-                    ? _confirmAnswer
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
-                  backgroundColor: _selectedAnswer != null ? Colors.blue : Colors.blue.withOpacity(0.25),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.blue.withOpacity(0.2),
-                  disabledForegroundColor: Colors.white.withOpacity(0.7),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Text(
-                  'Подтвердить ответ',
-                  style: textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
         ),
       ),
     );
