@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
 import 'marathon_screen.dart';
+import '../services/test_service.dart';
 
 class MarathonOptionsScreen extends StatefulWidget {
   const MarathonOptionsScreen({Key? key}) : super(key: key);
@@ -11,12 +12,29 @@ class MarathonOptionsScreen extends StatefulWidget {
 
 class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
   bool _isLoading = false;
+  int _questionCount = 10;
+  int _maxQuestions = 210;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMaxQuestions();
+  }
+
+  Future<void> _loadMaxQuestions() async {
+    final testService = TestService();
+    final allQuestions = await testService.getAllQuestions();
+    setState(() {
+      _maxQuestions = allQuestions.length;
+      if (_questionCount > _maxQuestions) _questionCount = _maxQuestions;
+    });
+  }
 
   Future<void> _startNewMarathon() async {
     setState(() => _isLoading = true);
 
     try {
-      final test = await MarathonTest.create();
+      final test = await MarathonTest.create(count: _questionCount);
       if (!mounted) return;
       
       Navigator.of(context).pushReplacement(
@@ -111,6 +129,17 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
                       ),
                     ),
                     const SizedBox(height: 32.0),
+                    Text('Количество вопросов: $_questionCount', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+                    Slider(
+                      value: _questionCount.toDouble(),
+                      min: 10,
+                      max: _maxQuestions.toDouble(),
+                      divisions: _maxQuestions - 10,
+                      label: '$_questionCount',
+                      onChanged: (v) {
+                        setState(() => _questionCount = v.round());
+                      },
+                    ),
                     ElevatedButton(
                       onPressed: _startNewMarathon,
                       style: ElevatedButton.styleFrom(

@@ -57,17 +57,16 @@ class MarathonTest {
 
   bool get isComplete => userAnswers.length == questions.length;
 
-  static Future<MarathonTest> create() async {
+  static Future<MarathonTest> create({int count = 10}) async {
     final testService = TestService();
     final questions = await testService.getAllQuestions();
-    
     if (questions.isEmpty) {
       throw Exception('No questions available for marathon');
     }
-
     questions.shuffle();
+    final selectedQuestions = questions.take(count).toList();
     return MarathonTest(
-      questions: questions,
+      questions: selectedQuestions,
       startTime: DateTime.now(),
     );
   }
