@@ -35,6 +35,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
 
     try {
       final test = await MarathonTest.create(count: _questionCount);
+      await test.saveProgress();
       if (!mounted) return;
       
       Navigator.of(context).pushReplacement(

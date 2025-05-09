@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
 import '../models/question.dart';
 import 'marathon_test_screen.dart';
+import 'marathon_wrong_answers_screen.dart';
 
 class MarathonTestResultsScreen extends StatelessWidget {
   final MarathonTest test;
@@ -30,10 +31,9 @@ class MarathonTestResultsScreen extends StatelessWidget {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: ListView(
-        children: [
-          // Результат теста (красный или зеленый блок)
-          Container(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -41,6 +41,7 @@ class MarathonTestResultsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: 64,
@@ -57,7 +58,7 @@ class MarathonTestResultsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  isPassed ? 'Марафон пройден' : 'Марафон не пройден',
+                  isPassed ? 'Тест пройден' : 'Тест не пройден',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -92,185 +93,67 @@ class MarathonTestResultsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+                if (test.questions.any((q) => test.userAnswers[q.id] != q.answer))
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MarathonWrongAnswersScreen(
+                            test: test,
+                            userAnswers: test.userAnswers,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.error_outline),
+                    label: const Text('Мои ошибки'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size.fromHeight(48),
+                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  icon: const Icon(Icons.home),
+                  label: const Text('На главную'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(48),
+                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MarathonScreen(
+                          test: test,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Пройти снова'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[800],
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(48),
+                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ],
             ),
           ),
-
-          // Список вопросов
-          ...List.generate(test.questions.length, (index) {
-            final question = test.questions[index];
-            final userAnswer = test.userAnswers[index];
-            final isCorrect = userAnswer == question.correctAnswer;
-
-            return Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: isCorrect ? Colors.green : Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          question.text,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isCorrect ? Colors.green[50] : Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isCorrect ? Colors.green : Colors.red,
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ваш ответ:',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userAnswer ?? 'Нет ответа',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: isCorrect ? Colors.green[700] : Colors.red[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (!isCorrect) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            'Правильный ответ:',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            question.correctAnswer,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.green[700],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-
-          // Кнопки внизу
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.blue[600]!),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        'На главную',
-                        style: TextStyle(
-                          color: Colors.blue[600],
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MarathonTestScreen(
-                              test: MarathonTest(
-                                questions: test.questions,
-                                startTime: DateTime.now(),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Пройти заново',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

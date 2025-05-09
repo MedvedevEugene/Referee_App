@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 class ChapterQuestion {
+  final String id;
   final String text;
   final List<String> options;
   final String correctAnswer;
 
   ChapterQuestion({
+    required this.id,
     required this.text,
     required this.options,
     required this.correctAnswer,
@@ -14,6 +16,7 @@ class ChapterQuestion {
 
   factory ChapterQuestion.fromJson(Map<String, dynamic> json) {
     return ChapterQuestion(
+      id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       text: json['question'],
       options: List<String>.from(json['options']),
       correctAnswer: json['answer'],
