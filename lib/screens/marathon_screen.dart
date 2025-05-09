@@ -146,6 +146,7 @@ class _MarathonScreenState extends State<MarathonScreen> {
     try {
       widget.test.userAnswers[_currentQuestionIndex] = _selectedAnswer!;
       _confirmedQuestions.add(_currentQuestionIndex);
+      await widget.test.saveProgress();
       
       if (_confirmedQuestions.length == widget.test.questions.length) {
         await widget.test.saveProgress();
