@@ -18,12 +18,12 @@ class ChapterWrongAnswersScreen extends StatefulWidget {
 class _ChapterWrongAnswersScreenState extends State<ChapterWrongAnswersScreen> {
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
-  final ScrollController _questionScrollController = ScrollController();
+  final PageController _pageController = PageController();
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _questionScrollController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -33,8 +33,6 @@ class _ChapterWrongAnswersScreenState extends State<ChapterWrongAnswersScreen> {
     final questions = widget.test.questions;
     final userAnswers = widget.userAnswers;
     final totalQuestions = questions.length;
-    final currentQuestion = questions[_currentIndex];
-    final userAnswer = userAnswers[_currentIndex];
 
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +71,7 @@ class _ChapterWrongAnswersScreenState extends State<ChapterWrongAnswersScreen> {
                       setState(() => _currentIndex = i);
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _scrollToCurrentQuestion(i);
-                        _questionScrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        _pageController.animateToPage(i, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                       });
                     },
                     child: Container(
@@ -101,82 +99,64 @@ class _ChapterWrongAnswersScreenState extends State<ChapterWrongAnswersScreen> {
             ),
           ),
           Expanded(
-            child: ListView(
-              controller: _questionScrollController,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              children: [
-                Text(
-                  currentQuestion.text,
-                  style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
-                ),
-                const SizedBox(height: 24),
-                ...currentQuestion.options.map((option) {
-                  final isOptionCorrect = option == currentQuestion.correctAnswer;
-                  final isOptionUser = option == userAnswer;
-                  Color border;
-                  if (isOptionCorrect) {
-                    border = Colors.green;
-                  } else if (isOptionUser && !isOptionCorrect) {
-                    border = Colors.red;
-                  } else {
-                    border = Colors.grey[300]!;
-                  }
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: border,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: totalQuestions,
+              onPageChanged: (index) {
+                setState(() => _currentIndex = index);
+                _scrollToCurrentQuestion(index);
+              },
+              itemBuilder: (context, pageIndex) {
+                final currentQuestion = questions[pageIndex];
+                final userAnswer = userAnswers[pageIndex];
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  children: [
+                    Text(
+                      currentQuestion.text,
+                      style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
                     ),
-                    child: ListTile(
-                      title: Text(
-                        option,
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      leading: isOptionCorrect
-                          ? const Icon(Icons.check_circle, color: Colors.green)
-                          : isOptionUser
-                              ? const Icon(Icons.cancel, color: Colors.red)
-                              : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
-                    ),
-                  );
-                }).toList(),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: () {
-                    setState(() {
-                      if (_currentIndex < totalQuestions - 1) {
-                        _currentIndex++;
+                    const SizedBox(height: 24),
+                    ...currentQuestion.options.map((option) {
+                      final isOptionCorrect = option == currentQuestion.correctAnswer;
+                      final isOptionUser = option == userAnswer;
+                      Color border;
+                      if (isOptionCorrect) {
+                        border = Colors.green;
+                      } else if (isOptionUser && !isOptionCorrect) {
+                        border = Colors.red;
                       } else {
-                        _currentIndex = 0;
+                        border = Colors.grey[300]!;
                       }
-                      _questionScrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                      _scrollToCurrentQuestion(_currentIndex);
-                    });
-                  },
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blue[600],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Следующий вопрос',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: border,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            option,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: Colors.black,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          leading: isOptionCorrect
+                              ? const Icon(Icons.check_circle, color: Colors.green)
+                              : isOptionUser
+                                  ? const Icon(Icons.cancel, color: Colors.red)
+                                  : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                );
+              },
             ),
           ),
         ],
