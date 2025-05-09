@@ -94,7 +94,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Marathon Test'),
+        title: const Text('Марафон'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -112,7 +112,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
                     ),
                     const SizedBox(height: 24.0),
                     const Text(
-                      'Test your knowledge with a marathon of questions!',
+                      'Проверь свои знания в марафоне вопросов!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24.0,
@@ -121,7 +121,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     const Text(
-                      'Answer as many questions as you can. Your progress will be saved automatically.',
+                      'Отвечай на максимальное количество вопросов. Твой прогресс будет сохраняться автоматически.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16.0,
@@ -129,13 +129,19 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
                       ),
                     ),
                     const SizedBox(height: 32.0),
-                    Text('Количество вопросов: $_questionCount', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+                    Text(
+                      'Количество вопросов: $_questionCount',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
                     Slider(
                       value: _questionCount.toDouble(),
                       min: 10,
                       max: _maxQuestions.toDouble(),
                       divisions: _maxQuestions - 10,
                       label: '$_questionCount',
+                      activeColor: Colors.blue,
+                      inactiveColor: Colors.blueAccent.withOpacity(0.2),
+                      thumbColor: Colors.blue,
                       onChanged: (v) {
                         setState(() => _questionCount = v.round());
                       },
@@ -146,7 +152,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
                         padding: const EdgeInsets.all(16.0),
                       ),
                       child: const Text(
-                        'Start New Marathon',
+                        'Начать новый марафон',
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),
@@ -157,7 +163,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
                         padding: const EdgeInsets.all(16.0),
                       ),
                       child: const Text(
-                        'Continue Saved Marathon',
+                        'Продолжить сохранённый марафон',
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),
