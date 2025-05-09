@@ -105,7 +105,7 @@ class _TestWrongAnswersScreenState extends State<TestWrongAnswersScreen> {
           Expanded(
             child: ListView(
               controller: _questionScrollController,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
                 Text(
                   currentQuestion.question,
@@ -149,44 +149,39 @@ class _TestWrongAnswersScreenState extends State<TestWrongAnswersScreen> {
                     ),
                   );
                 }).toList(),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_currentIndex < totalQuestions - 1) {
+                        _currentIndex++;
+                      } else {
+                        _currentIndex = 0;
+                      }
+                      _questionScrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                      _scrollToCurrentQuestion(_currentIndex);
+                    });
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.blue[600],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Следующий вопрос',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: () {
-              setState(() {
-                if (_currentIndex < totalQuestions - 1) {
-                  _currentIndex++;
-                } else {
-                  _currentIndex = 0;
-                }
-                _questionScrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                _scrollToCurrentQuestion(_currentIndex);
-              });
-            },
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: Colors.blue[600],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Следующий вопрос',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
