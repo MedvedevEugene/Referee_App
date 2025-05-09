@@ -55,7 +55,7 @@ class _MarathonWrongAnswersScreenState extends State<MarathonWrongAnswersScreen>
                   final userAns = userAnswers[i];
                   final isCurrent = i == _currentIndex;
                   final isAnswered = userAns != null;
-                  final isQCorrect = userAns == q.correctAnswer;
+                  final isQCorrect = userAns == q.answer;
                   Color color;
                   Color textColor = Colors.white;
                   if (isCurrent) {
@@ -106,12 +106,12 @@ class _MarathonWrongAnswersScreenState extends State<MarathonWrongAnswersScreen>
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
                 Text(
-                  currentQuestion.text,
+                  currentQuestion.question,
                   style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
                 ),
                 const SizedBox(height: 24),
                 ...currentQuestion.options.map((option) {
-                  final isOptionCorrect = option == currentQuestion.correctAnswer;
+                  final isOptionCorrect = option == currentQuestion.answer;
                   final isOptionUser = option == userAnswer;
                   Color border;
                   if (isOptionCorrect) {

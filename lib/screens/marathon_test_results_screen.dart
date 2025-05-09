@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
-import '../models/question.dart';
-import 'marathon_test_screen.dart';
 import 'marathon_wrong_answers_screen.dart';
+import 'marathon_screen.dart';
 
 class MarathonTestResultsScreen extends StatelessWidget {
   final MarathonTest test;
@@ -94,7 +93,7 @@ class MarathonTestResultsScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                if (test.questions.any((q) => test.userAnswers[q.id] != q.answer))
+                if (test.questions.any((q) => test.userAnswers[test.questions.indexOf(q)] != q.answer))
                   ElevatedButton.icon(
                     onPressed: () {
                       Navigator.of(context).push(

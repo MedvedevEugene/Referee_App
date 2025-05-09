@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
 import '../models/test_models.dart';
 import '../services/favorites_service.dart';
-import 'marathon_results_screen.dart';
+import 'marathon_test_results_screen.dart';
 
 class MarathonScreen extends StatefulWidget {
   final MarathonTest test;
@@ -154,7 +154,7 @@ class _MarathonScreenState extends State<MarathonScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MarathonResultsScreen(test: widget.test),
+            builder: (context) => MarathonTestResultsScreen(test: widget.test),
           ),
         );
         return;
@@ -198,7 +198,7 @@ class _MarathonScreenState extends State<MarathonScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => MarathonResultsScreen(test: widget.test),
+        builder: (context) => MarathonTestResultsScreen(test: widget.test),
       ),
     );
   }
