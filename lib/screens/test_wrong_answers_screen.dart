@@ -63,6 +63,22 @@ class _TestWrongAnswersScreenState extends State<TestWrongAnswersScreen> {
       appBar: AppBar(
         title: const Text('Мои ошибки'),
         centerTitle: true,
+        actions: [
+          Builder(
+            builder: (context) {
+              final currentQuestion = questions[_currentIndex];
+              final isFavorite = _favoriteIds.contains(currentQuestion.id);
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : Colors.grey,
+                ),
+                tooltip: isFavorite ? 'Убрать из избранного' : 'В избранное',
+                onPressed: () => _toggleFavorite(currentQuestion.id),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -150,14 +166,6 @@ class _TestWrongAnswersScreenState extends State<TestWrongAnswersScreen> {
                                 currentQuestion.question,
                                 style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: isFavorite ? Colors.red : Colors.grey,
-                              ),
-                              tooltip: isFavorite ? 'Убрать из избранного' : 'В избранное',
-                              onPressed: () => _toggleFavorite(currentQuestion.id),
                             ),
                           ],
                         ),

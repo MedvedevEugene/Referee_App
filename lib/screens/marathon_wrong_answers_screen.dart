@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
+import '../services/favorites_service.dart';
 
 class MarathonWrongAnswersScreen extends StatefulWidget {
   final MarathonTest test;
@@ -19,6 +20,30 @@ class _MarathonWrongAnswersScreenState extends State<MarathonWrongAnswersScreen>
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
   final PageController _pageController = PageController();
+  FavoritesService? _favoritesService;
+  Set<int> _favoriteIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _initFavorites();
+  }
+
+  Future<void> _initFavorites() async {
+    final service = await FavoritesService.create();
+    setState(() {
+      _favoritesService = service;
+      _favoriteIds = service.getFavoriteIds();
+    });
+  }
+
+  Future<void> _toggleFavorite(int questionId) async {
+    if (_favoritesService == null) return;
+    await _favoritesService!.toggleFavorite(questionId);
+    setState(() {
+      _favoriteIds = _favoritesService!.getFavoriteIds();
+    });
+  }
 
   @override
   void dispose() {
@@ -38,6 +63,22 @@ class _MarathonWrongAnswersScreenState extends State<MarathonWrongAnswersScreen>
       appBar: AppBar(
         title: const Text('Мои ошибки'),
         centerTitle: true,
+        actions: [
+          Builder(
+            builder: (context) {
+              final currentQuestion = questions[_currentIndex];
+              final isFavorite = _favoriteIds.contains(currentQuestion.id);
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : Colors.grey,
+                ),
+                tooltip: isFavorite ? 'Убрать из избранного' : 'В избранное',
+                onPressed: () => _toggleFavorite(currentQuestion.id),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -162,42 +203,6 @@ class _MarathonWrongAnswersScreenState extends State<MarathonWrongAnswersScreen>
                 ),
               ),
             ],
-          ),
-          Positioned(
-            right: 16,
-            bottom: 32,
-            child: SafeArea(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    if (_currentIndex < totalQuestions - 1) {
-                      _currentIndex++;
-                    } else {
-                      _currentIndex = 0;
-                    }
-                    _pageController.animateToPage(_currentIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    _scrollToCurrentQuestion(_currentIndex);
-                  });
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  side: BorderSide(color: Colors.blue[600]!),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  minimumSize: const Size(0, 40),
-                ),
-                icon: const Icon(Icons.arrow_forward, size: 18, color: Colors.blue),
-                label: const Text(
-                  'Следующий',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-            ),
           ),
         ],
       ),
