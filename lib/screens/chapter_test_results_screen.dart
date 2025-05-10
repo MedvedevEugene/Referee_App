@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/chapter_test.dart';
 import 'chapter_test_screen.dart';
 import 'chapter_wrong_answers_screen.dart';
+import '../services/test_history_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/test_history.dart';
 
 class ChapterTestResultsScreen extends StatelessWidget {
   final ChapterTest test;
@@ -11,8 +14,31 @@ class ChapterTestResultsScreen extends StatelessWidget {
     required this.test,
   });
 
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final service = TestHistoryService(prefs);
+    final history = TestHistory(
+      id: service.generateId(),
+      testType: 'chapter',
+      dateTime: DateTime.now(),
+      correctAnswers: test.score,
+      totalQuestions: test.questions.length,
+      timeSpent: test.timeSpent,
+      chapterName: 'Глава ${test.chapterNumber}',
+      questions: test.questions.asMap().entries.map((entry) => {
+        'id': entry.value.id,
+        'question': entry.value.text,
+        'options': entry.value.options,
+        'answer': entry.value.correctAnswer,
+        'userAnswer': test.userAnswers[entry.key],
+      }).toList(),
+    );
+    await service.saveTestResult(history);
+  }
+
   @override
   Widget build(BuildContext context) {
+    _saveHistory();
     final score = test.score;
     final totalQuestions = test.questions.length;
     final percentageScore = (score / totalQuestions * 100).round();

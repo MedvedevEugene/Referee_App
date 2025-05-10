@@ -3,6 +3,8 @@ import '../models/test_history.dart';
 import '../services/favorites_service.dart';
 import 'test_wrong_answers_screen.dart';
 import '../models/test_models.dart';
+import '../models/chapter_test.dart';
+import 'chapter_wrong_answers_screen.dart';
 
 class TestHistoryDetailsScreen extends StatelessWidget {
   final TestHistory test;
@@ -88,30 +90,55 @@ class TestHistoryDetailsScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                if (test.questions.any((q) => (q['userAnswer']?.toString() ?? '') != (q['correctAnswer']?.toString() ?? '')))
+                if (test.questions.any((q) => (q['userAnswer']?.toString() ?? '') != (q['answer']?.toString() ?? '')))
                   ElevatedButton.icon(
                     onPressed: () {
-                      final wrongQuestions = test.questions.where((q) => (q['userAnswer']?.toString() ?? '') != (q['correctAnswer']?.toString() ?? '')).toList();
-                      final questions = wrongQuestions.map((q) => Question(
-                        id: q['id'] is int ? q['id'] as int : int.tryParse(q['id'].toString() ?? '') ?? 0,
-                        rules: (q['rules'] as List?)?.map((e) => e.toString()).toList() ?? [],
-                        question: q['question']?.toString() ?? '',
-                        options: (q['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
-                        answer: q['answer']?.toString() ?? '',
-                      )).toList();
-                      final userAnswers = <int, String>{};
-                      for (final q in wrongQuestions) {
-                        final id = q['id'] is int ? q['id'] as int : int.tryParse(q['id'].toString() ?? '') ?? 0;
-                        userAnswers[id] = q['userAnswer']?.toString() ?? '';
-                      }
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => TestWrongAnswersScreen(
-                            test: ExamTest(questions: questions, startTime: DateTime.now()),
-                            userAnswers: userAnswers,
+                      if (test.testType == 'exam') {
+                        final questions = test.questions.map((q) => Question(
+                          id: q['id'] is int ? q['id'] as int : int.tryParse(q['id'].toString() ?? '') ?? 0,
+                          rules: (q['rules'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          question: q['question']?.toString() ?? '',
+                          options: (q['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          answer: q['answer']?.toString() ?? '',
+                        )).toList();
+                        final userAnswers = <int, String>{};
+                        for (final q in test.questions) {
+                          final id = q['id'] is int ? q['id'] as int : int.tryParse(q['id'].toString() ?? '') ?? 0;
+                          userAnswers[id] = q['userAnswer']?.toString() ?? '';
+                        }
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => TestWrongAnswersScreen(
+                              test: ExamTest(questions: questions, startTime: DateTime.now()),
+                              userAnswers: userAnswers,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else if (test.testType == 'chapter') {
+                        final questions = test.questions.map((q) => ChapterQuestion(
+                          id: q['id']?.toString() ?? '',
+                          text: q['question']?.toString() ?? '',
+                          options: (q['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          correctAnswer: q['answer']?.toString() ?? '',
+                        )).toList();
+                        final userAnswers = <int, String>{};
+                        for (var i = 0; i < test.questions.length; i++) {
+                          userAnswers[i] = test.questions[i]['userAnswer']?.toString() ?? '';
+                        }
+                        final chapterTest = ChapterTest(
+                          questions: questions,
+                          chapterNumber: int.tryParse(test.chapterName?.replaceAll(RegExp(r'\D'), '') ?? '0') ?? 0,
+                          startTime: DateTime.now(),
+                        );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ChapterWrongAnswersScreen(
+                              test: chapterTest,
+                              userAnswers: userAnswers,
+                            ),
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.error_outline),
                     label: const Text('Мои ошибки'),

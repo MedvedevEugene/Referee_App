@@ -47,6 +47,7 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
       correctAnswers: test.score,
       totalQuestions: test.questions.length,
       timeSpent: timeSpent,
+      chapterName: 'Экзаменационный тест',
       questions: test.questions.map((q) => {
         'id': q.id,
         'question': q.question,
