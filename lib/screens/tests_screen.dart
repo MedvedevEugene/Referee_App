@@ -4,6 +4,7 @@ import 'favorites_options_screen.dart';
 import 'exam_test_screen.dart';
 import 'marathon_options_screen.dart';
 import '../services/test_service.dart';
+import 'test_history_screen.dart';
 
 class TestsScreen extends StatelessWidget {
   const TestsScreen({super.key});
@@ -68,7 +69,14 @@ class TestsScreen extends StatelessWidget {
             iconBackground: Colors.green[50]!,
             title: 'История тестов',
             subtitle: 'Результаты предыдущих тестов',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TestHistoryScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),

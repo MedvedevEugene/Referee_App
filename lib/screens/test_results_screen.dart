@@ -3,6 +3,9 @@ import '../models/test_models.dart';
 import 'exam_test_screen.dart';
 import '../services/favorites_service.dart';
 import 'test_wrong_answers_screen.dart';
+import '../services/test_history_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/test_history.dart';
 
 class TestResultsScreen extends StatefulWidget {
   final ExamTest test;
@@ -31,6 +34,28 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
     test = widget.test;
     userAnswers = widget.userAnswers;
     timeSpent = widget.timeSpent;
+    _saveHistory();
+  }
+
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final service = TestHistoryService(prefs);
+    final history = TestHistory(
+      id: service.generateId(),
+      testType: 'exam',
+      dateTime: DateTime.now(),
+      correctAnswers: test.score,
+      totalQuestions: test.questions.length,
+      timeSpent: timeSpent,
+      questions: test.questions.map((q) => {
+        'id': q.id,
+        'question': q.question,
+        'options': q.options,
+        'answer': q.answer,
+        'userAnswer': userAnswers[q.id],
+      }).toList(),
+    );
+    await service.saveTestResult(history);
   }
 
   @override
