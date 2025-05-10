@@ -22,11 +22,22 @@ class _MarathonTestScreenState extends State<MarathonTestScreen> {
   final ScrollController _scrollController = ScrollController();
   Set<int> _confirmedQuestions = {};
   bool _isLoading = false;
+  bool _isFinished = false;
 
   @override
   void initState() {
     super.initState();
     _selectedAnswer = widget.test.userAnswers[_currentQuestionIndex];
+    // Проверяем, завершён ли тест по сохранённым ответам
+    final total = widget.test.questions.length;
+    final confirmed = <int>{};
+    for (int i = 0; i < total; i++) {
+      if (widget.test.userAnswers[i] != null) {
+        confirmed.add(i);
+      }
+    }
+    _confirmedQuestions = confirmed;
+    _isFinished = _confirmedQuestions.length == total;
   }
 
   @override
@@ -90,19 +101,14 @@ class _MarathonTestScreenState extends State<MarathonTestScreen> {
     });
 
     try {
-      widget.test.userAnswers[_currentQuestionIndex] = _selectedAnswer;
+      widget.test.userAnswers[_currentQuestionIndex] = _selectedAnswer!;
       _confirmedQuestions.add(_currentQuestionIndex);
-      
       if (_confirmedQuestions.length == widget.test.questions.length) {
-        widget.test.endTime = DateTime.now();
-        await widget.test.save();
+        await widget.test.saveProgress();
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MarathonTestResultsScreen(test: widget.test),
-          ),
-        );
+        setState(() {
+          _isFinished = true;
+        });
         return;
       }
 
@@ -128,7 +134,7 @@ class _MarathonTestScreenState extends State<MarathonTestScreen> {
       return Colors.blue[400]!;
     }
     if (_confirmedQuestions.contains(index)) {
-      final isCorrect = widget.test.questions[index].correctAnswer == 
+      final isCorrect = widget.test.questions[index].answer == 
                        widget.test.userAnswers[index];
       return isCorrect ? Colors.green[400]! : Colors.red[400]!;
     }
@@ -138,6 +144,35 @@ class _MarathonTestScreenState extends State<MarathonTestScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    if (_isFinished) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Марафон'),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.emoji_events, color: Colors.green, size: 64),
+              const SizedBox(height: 24),
+              Text(
+                'Тест пройден!\nНачните новый марафон.',
+                textAlign: TextAlign.center,
+                style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 32),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Начать новый марафон'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final isConfirmed = _confirmedQuestions.contains(_currentQuestionIndex);
 
     return WillPopScope(
@@ -202,7 +237,7 @@ class _MarathonTestScreenState extends State<MarathonTestScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                     children: [
                       Text(
-                        widget.test.questions[_currentQuestionIndex].text,
+                        widget.test.questions[_currentQuestionIndex].question,
                         style: textTheme.titleLarge,
                       ),
                       const SizedBox(height: 24),
