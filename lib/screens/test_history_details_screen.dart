@@ -5,6 +5,10 @@ import 'test_wrong_answers_screen.dart';
 import '../models/test_models.dart';
 import '../models/chapter_test.dart';
 import 'chapter_wrong_answers_screen.dart';
+import 'favorite_wrong_answers_screen.dart';
+import '../models/favorite_test.dart';
+import 'marathon_wrong_answers_screen.dart';
+import '../models/marathon_test.dart';
 
 class TestHistoryDetailsScreen extends StatelessWidget {
   final TestHistory test;
@@ -134,6 +138,57 @@ class TestHistoryDetailsScreen extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => ChapterWrongAnswersScreen(
                               test: chapterTest,
+                              userAnswers: userAnswers,
+                            ),
+                          ),
+                        );
+                      } else if (test.testType == 'favorite') {
+                        final questions = test.questions.map((q) => Question(
+                          id: q['id'] is int ? q['id'] as int : int.tryParse(q['id'].toString() ?? '') ?? 0,
+                          rules: (q['rules'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          question: q['question']?.toString() ?? '',
+                          options: (q['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          answer: q['answer']?.toString() ?? '',
+                        )).toList();
+                        final userAnswers = <int, String>{};
+                        for (var i = 0; i < test.questions.length; i++) {
+                          userAnswers[i] = test.questions[i]['userAnswer']?.toString() ?? '';
+                        }
+                        final favoriteTest = FavoriteTest(
+                          questions: questions,
+                          answers: userAnswers,
+                          startTime: DateTime.now(),
+                          endTime: DateTime.now(),
+                        );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => FavoriteWrongAnswersScreen(
+                              test: favoriteTest,
+                              userAnswers: userAnswers,
+                            ),
+                          ),
+                        );
+                      } else if (test.testType == 'marathon') {
+                        final questions = test.questions.map((q) => Question(
+                          id: q['id'] is int ? q['id'] as int : int.tryParse(q['id'].toString() ?? '') ?? 0,
+                          rules: (q['rules'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          question: q['question']?.toString() ?? '',
+                          options: (q['options'] as List?)?.map((e) => e.toString()).toList() ?? [],
+                          answer: q['answer']?.toString() ?? '',
+                        )).toList();
+                        final userAnswers = <int, String>{};
+                        for (var i = 0; i < test.questions.length; i++) {
+                          userAnswers[i] = test.questions[i]['userAnswer']?.toString() ?? '';
+                        }
+                        final marathonTest = MarathonTest(
+                          questions: questions,
+                          startTime: DateTime.now(),
+                          userAnswers: userAnswers,
+                        );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => MarathonWrongAnswersScreen(
+                              test: marathonTest,
                               userAnswers: userAnswers,
                             ),
                           ),

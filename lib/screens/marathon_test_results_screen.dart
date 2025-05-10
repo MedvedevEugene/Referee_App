@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/marathon_test.dart';
 import 'marathon_wrong_answers_screen.dart';
 import 'marathon_screen.dart';
+import '../services/test_history_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/test_history.dart';
 
 class MarathonTestResultsScreen extends StatelessWidget {
   final MarathonTest test;
@@ -11,8 +14,31 @@ class MarathonTestResultsScreen extends StatelessWidget {
     required this.test,
   });
 
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final service = TestHistoryService(prefs);
+    final history = TestHistory(
+      id: service.generateId(),
+      testType: 'marathon',
+      dateTime: DateTime.now(),
+      correctAnswers: test.score,
+      totalQuestions: test.questions.length,
+      timeSpent: test.timeSpent,
+      chapterName: 'Марафон',
+      questions: test.questions.asMap().entries.map((entry) => {
+        'id': entry.value.id,
+        'question': entry.value.question,
+        'options': entry.value.options,
+        'answer': entry.value.answer,
+        'userAnswer': test.userAnswers[entry.key],
+      }).toList(),
+    );
+    await service.saveTestResult(history);
+  }
+
   @override
   Widget build(BuildContext context) {
+    _saveHistory();
     final score = test.score;
     final totalQuestions = test.questions.length;
     final percentageScore = (score / totalQuestions * 100).round();
