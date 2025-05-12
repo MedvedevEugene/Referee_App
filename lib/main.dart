@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'models/bookmark.dart';
 import 'screens/home_screen.dart';
 import 'screens/rules_screen.dart';
 import 'screens/tests_screen.dart';
@@ -25,7 +27,12 @@ void main() {
     ),
   );
   
-  runApp(const RefereeApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => BookmarkProvider(),
+      child: const RefereeApp(),
+    ),
+  );
 }
 
 class RefereeApp extends StatelessWidget {

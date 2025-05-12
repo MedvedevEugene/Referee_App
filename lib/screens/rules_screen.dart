@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:provider/provider.dart';
+import '../models/bookmark.dart';
+import 'bookmarks_screen.dart';
 import 'rules_chapters_screen.dart';
 
 class RulesScreen extends StatelessWidget {
@@ -139,10 +142,17 @@ class RulesScreen extends StatelessWidget {
   }
 }
 
-class FullRulesScreen extends StatelessWidget {
-  final PdfViewerController _pdfViewerController;
+class FullRulesScreen extends StatefulWidget {
+  const FullRulesScreen({super.key});
 
-  FullRulesScreen({super.key}) : _pdfViewerController = PdfViewerController();
+  @override
+  State<FullRulesScreen> createState() => _FullRulesScreenState();
+}
+
+class _FullRulesScreenState extends State<FullRulesScreen> {
+  final PdfViewerController _pdfViewerController = PdfViewerController();
+  String _currentPageText = '';
+  int _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -154,15 +164,83 @@ class FullRulesScreen extends StatelessWidget {
           'Правила игры',
           style: textTheme.displaySmall,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bookmark_border),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BookmarksScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      body: SfPdfViewer.asset(
-        'assets/pdf/football_rules.pdf',
-        controller: _pdfViewerController,
-        initialZoomLevel: 1.0,
-        enableDoubleTapZooming: true,
-        pageSpacing: 8,
-        scrollDirection: PdfScrollDirection.horizontal,
-        pageLayoutMode: PdfPageLayoutMode.single,
+      body: Column(
+        children: [
+          Expanded(
+            child: SfPdfViewer.asset(
+              'assets/pdf/football_rules.pdf',
+              controller: _pdfViewerController,
+              initialZoomLevel: 1.0,
+              enableDoubleTapZooming: true,
+              pageSpacing: 8,
+              scrollDirection: PdfScrollDirection.horizontal,
+              pageLayoutMode: PdfPageLayoutMode.single,
+              onPageChanged: (PdfPageChangedDetails details) {
+                setState(() {
+                  _currentPage = details.newPageNumber;
+                });
+              },
+              onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
+                if (details.selectedText != null) {
+                  setState(() {
+                    _currentPageText = details.selectedText!;
+                  });
+                }
+              },
+            ),
+          ),
+          if (_currentPageText.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _currentPageText,
+                      style: textTheme.bodyMedium,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.bookmark_add),
+                    onPressed: () {
+                      final bookmarkProvider = Provider.of<BookmarkProvider>(context, listen: false);
+                      final bookmark = Bookmark(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        title: 'Страница $_currentPage',
+                        content: _currentPageText,
+                        createdAt: DateTime.now(),
+                      );
+                      bookmarkProvider.addBookmark(bookmark);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Закладка добавлена'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      setState(() {
+                        _currentPageText = '';
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
