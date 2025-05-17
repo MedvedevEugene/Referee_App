@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/bookmark.dart';
+import 'rules_screen.dart';
 
 class BookmarksScreen extends StatelessWidget {
   const BookmarksScreen({super.key});
+
+  int? getPageFromBookmark(Bookmark bookmark) {
+    if (bookmark.id.startsWith('page_')) {
+      final pageStr = bookmark.id.replaceFirst('page_', '');
+      return int.tryParse(pageStr);
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +62,21 @@ class BookmarksScreen extends StatelessWidget {
                     },
                   ),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookmarkDetailsScreen(bookmark: bookmark),
-                      ),
-                    );
+                    final page = getPageFromBookmark(bookmark);
+                    if (page != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => FullRulesScreen(initialPage: page),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookmarkDetailsScreen(bookmark: bookmark),
+                        ),
+                      );
+                    }
                   },
                 ),
               );

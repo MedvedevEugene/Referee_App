@@ -143,7 +143,8 @@ class RulesScreen extends StatelessWidget {
 }
 
 class FullRulesScreen extends StatefulWidget {
-  const FullRulesScreen({super.key});
+  final int? initialPage;
+  const FullRulesScreen({super.key, this.initialPage});
 
   @override
   State<FullRulesScreen> createState() => _FullRulesScreenState();
@@ -151,8 +152,20 @@ class FullRulesScreen extends StatefulWidget {
 
 class _FullRulesScreenState extends State<FullRulesScreen> {
   final PdfViewerController _pdfViewerController = PdfViewerController();
-  String _currentPageText = '';
   int _currentPage = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialPage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _pdfViewerController.jumpToPage(widget.initialPage!);
+        setState(() {
+          _currentPage = widget.initialPage!;
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,11 +173,75 @@ class _FullRulesScreenState extends State<FullRulesScreen> {
     
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           'Правила игры',
           style: textTheme.displaySmall,
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bookmark_add),
+            tooltip: 'Добавить страницу в закладки',
+            onPressed: () async {
+              final TextEditingController noteController = TextEditingController();
+              final result = await showDialog<String>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Добавить закладку'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Страница $_currentPage'),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: noteController,
+                        decoration: const InputDecoration(
+                          labelText: 'Краткое описание (необязательно)',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Отмена'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(noteController.text.trim()),
+                      child: const Text('Сохранить'),
+                    ),
+                  ],
+                ),
+              );
+              if (result != null) {
+                final bookmarkProvider = Provider.of<BookmarkProvider>(context, listen: false);
+                final bookmark = Bookmark(
+                  id: 'page_${_currentPage}',
+                  title: 'Страница $_currentPage',
+                  content: result.isEmpty ? 'Без описания' : result,
+                  createdAt: DateTime.now(),
+                );
+                if (!bookmarkProvider.isBookmarked('page_${_currentPage}')) {
+                  bookmarkProvider.addBookmark(bookmark);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Страница $_currentPage добавлена в закладки')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Эта страница уже в закладках')),
+                  );
+                }
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.bookmark_border),
             onPressed: () {
@@ -178,69 +255,19 @@ class _FullRulesScreenState extends State<FullRulesScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SfPdfViewer.asset(
-              'assets/pdf/football_rules.pdf',
-              controller: _pdfViewerController,
-              initialZoomLevel: 1.0,
-              enableDoubleTapZooming: true,
-              pageSpacing: 8,
-              scrollDirection: PdfScrollDirection.horizontal,
-              pageLayoutMode: PdfPageLayoutMode.single,
-              onPageChanged: (PdfPageChangedDetails details) {
-                setState(() {
-                  _currentPage = details.newPageNumber;
-                });
-              },
-              onTextSelectionChanged: (PdfTextSelectionChangedDetails details) {
-                if (details.selectedText != null) {
-                  setState(() {
-                    _currentPageText = details.selectedText!;
-                  });
-                }
-              },
-            ),
-          ),
-          if (_currentPageText.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.white,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _currentPageText,
-                      style: textTheme.bodyMedium,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.bookmark_add),
-                    onPressed: () {
-                      final bookmarkProvider = Provider.of<BookmarkProvider>(context, listen: false);
-                      final bookmark = Bookmark(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        title: 'Страница $_currentPage',
-                        content: _currentPageText,
-                        createdAt: DateTime.now(),
-                      );
-                      bookmarkProvider.addBookmark(bookmark);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Закладка добавлена'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                      setState(() {
-                        _currentPageText = '';
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-        ],
+      body: SfPdfViewer.asset(
+        'assets/pdf/football_rules.pdf',
+        controller: _pdfViewerController,
+        initialZoomLevel: 1.0,
+        enableDoubleTapZooming: true,
+        pageSpacing: 8,
+        scrollDirection: PdfScrollDirection.horizontal,
+        pageLayoutMode: PdfPageLayoutMode.single,
+        onPageChanged: (PdfPageChangedDetails details) {
+          setState(() {
+            _currentPage = details.newPageNumber;
+          });
+        },
       ),
     );
   }

@@ -29,7 +29,11 @@ void main() {
   
   runApp(
     ChangeNotifierProvider(
-      create: (_) => BookmarkProvider(),
+      create: (_) {
+        final provider = BookmarkProvider();
+        provider.loadBookmarks();
+        return provider;
+      },
       child: const RefereeApp(),
     ),
   );

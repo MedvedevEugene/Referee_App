@@ -3,7 +3,6 @@ import '../models/marathon_test.dart';
 import 'marathon_screen.dart';
 import '../services/test_service.dart';
 import 'marathon_test_results_screen.dart';
-import 'marathon_test_screen.dart';
 
 class MarathonOptionsScreen extends StatefulWidget {
   const MarathonOptionsScreen({Key? key}) : super(key: key);
@@ -78,7 +77,7 @@ class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
         } else {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => MarathonTestScreen(test: test),
+              builder: (context) => MarathonScreen(test: test),
             ),
           );
         }

@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Bookmark {
   final String id;
@@ -37,13 +39,31 @@ class BookmarkProvider with ChangeNotifier {
 
   List<Bookmark> get bookmarks => _bookmarks;
 
+  Future<void> loadBookmarks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString('bookmarks');
+    if (data != null) {
+      final List<dynamic> jsonList = jsonDecode(data);
+      _bookmarks = jsonList.map((e) => Bookmark.fromJson(e)).toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveBookmarks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = jsonEncode(_bookmarks.map((e) => e.toJson()).toList());
+    await prefs.setString('bookmarks', data);
+  }
+
   void addBookmark(Bookmark bookmark) {
     _bookmarks.add(bookmark);
+    saveBookmarks();
     notifyListeners();
   }
 
   void removeBookmark(String id) {
     _bookmarks.removeWhere((bookmark) => bookmark.id == id);
+    saveBookmarks();
     notifyListeners();
   }
 
