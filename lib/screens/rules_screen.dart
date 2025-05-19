@@ -55,30 +55,6 @@ class RulesScreen extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 12),
-          _buildRuleCard(
-            context: context,
-            icon: Icons.slideshow,
-            iconColor: Colors.orange[400]!,
-            iconBackground: Colors.orange[50]!,
-            title: 'Презентации',
-            subtitle: 'Интерактивные материалы',
-            onTap: () {
-              // TODO: Navigate to presentations
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildRuleCard(
-            context: context,
-            icon: Icons.help_outline,
-            iconColor: Colors.green[400]!,
-            iconBackground: Colors.green[50]!,
-            title: 'Вспомогательные материалы',
-            subtitle: 'Дополнительная информация',
-            onTap: () {
-              // TODO: Navigate to additional materials
-            },
-          ),
         ],
       ),
     );

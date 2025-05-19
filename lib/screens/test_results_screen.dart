@@ -77,35 +77,6 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final result = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Выйти из результатов?'),
-                content: const Text('Вы действительно хотите вернуться к списку тестов?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Остаться'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text(
-                      'Выйти',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-            );
-            if (result ?? false) {
-              if (!mounted) return;
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            }
-          },
-        ),
       ),
       body: Center(
         child: SingleChildScrollView(

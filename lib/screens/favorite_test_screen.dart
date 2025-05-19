@@ -102,10 +102,16 @@ class _FavoriteTestScreenState extends State<FavoriteTestScreen> {
       _confirmedQuestions.add(_currentQuestionIndex);
       
       if (_confirmedQuestions.length == widget.test.questions.length) {
+        final finishedTest = FavoriteTest(
+          questions: widget.test.questions,
+          answers: Map<int, String>.from(widget.test.answers),
+          startTime: widget.test.startTime,
+          endTime: DateTime.now(),
+        );
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => FavoriteTestResultsScreen(test: widget.test),
+            builder: (context) => FavoriteTestResultsScreen(test: finishedTest),
           ),
         );
         return;
