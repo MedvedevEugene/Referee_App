@@ -1,14 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'settings_screen.dart';
+import '../services/favorites_service.dart';
+import '../services/test_history_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int favoriteCount = 0;
+  int activityStreak = 0;
+  int marathonRecord = 0;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final favoritesService = await FavoritesService.create();
+    final favoriteIds = favoritesService.getFavoriteIds();
+    final prefs = await SharedPreferences.getInstance();
+    final historyService = TestHistoryService(prefs);
+    final history = historyService.getTestHistory();
+
+    // Активность: streak дней подряд с тестами
+    int streak = 0;
+    DateTime today = DateTime.now();
+    final daysWithTests = history.map((h) => DateTime(h.dateTime.year, h.dateTime.month, h.dateTime.day)).toSet().toList()..sort((a, b) => b.compareTo(a));
+    if (daysWithTests.isNotEmpty && daysWithTests.first == DateTime(today.year, today.month, today.day)) {
+      streak = 1;
+      for (int i = 1; i < daysWithTests.length; i++) {
+        if (daysWithTests[i - 1].difference(daysWithTests[i]).inDays == 1) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+    } else {
+      streak = 0;
+    }
+
+    // Марафон рекорд
+    int marathonMax = 0;
+    for (final h in history.where((h) => h.testType == 'marathon')) {
+      if (h.correctAnswers > marathonMax) marathonMax = h.correctAnswers;
+    }
+
+    setState(() {
+      favoriteCount = favoriteIds.length;
+      activityStreak = streak;
+      marathonRecord = marathonMax;
+      loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -19,172 +76,143 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // TODO: Implement settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Добро пожаловать!',
-                style: textTheme.displayMedium,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Статистика',
-                    style: textTheme.headlineMedium,
-                  ),
-                  Text(
-                    'За все время',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Добро пожаловать!',
+                      style: textTheme.displayMedium,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 0,
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Статистика',
+                      style: textTheme.headlineMedium,
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatItem(
-                            context: context,
-                            icon: Icons.quiz,
-                            value: '0',
-                            label: 'Тестов\nпройдено',
-                            iconColor: Colors.blue[300]!,
-                            iconBackground: Colors.blue[50]!,
-                          ),
-                          _buildStatItem(
-                            context: context,
-                            icon: Icons.check_circle_outline,
-                            value: '0%',
-                            label: 'Правильных\nответов',
-                            iconColor: Colors.green[300]!,
-                            iconBackground: Colors.green[50]!,
-                          ),
-                          _buildStatItem(
-                            context: context,
-                            icon: Icons.favorite,
-                            value: '0',
-                            label: 'В\nизбранном',
-                            iconColor: Colors.red[300]!,
-                            iconBackground: Colors.red[50]!,
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 0,
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildActivityItem(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatItem(
                               context: context,
                               icon: Icons.local_fire_department,
-                              title: 'Активность',
-                              subtitle: '0 дней подряд',
+                              value: activityStreak.toString(),
+                              label: 'Активность\nдней подряд',
                               iconColor: Colors.orange,
                               iconBackground: Colors.orange[50]!,
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildActivityItem(
+                            _buildStatItem(
+                              context: context,
+                              icon: Icons.favorite,
+                              value: favoriteCount.toString(),
+                              label: 'Вопросов\nв избранном',
+                              iconColor: Colors.red[300]!,
+                              iconBackground: Colors.red[50]!,
+                            ),
+                            _buildStatItem(
                               context: context,
                               icon: Icons.emoji_events_outlined,
-                              title: 'Марафон',
-                              subtitle: 'Рекорд: 0',
+                              value: marathonRecord.toString(),
+                              label: 'Марафон\nрекорд',
                               iconColor: Colors.purple,
                               iconBackground: Colors.purple[50]!,
                             ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Социальные сети',
+                      style: textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 0,
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Социальные сети',
-                style: textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 0,
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(FontAwesomeIcons.telegram, color: Colors.blue[400], size: 20),
+                        ),
+                        title: Text(
+                          'Telegram канал',
+                          style: textTheme.titleMedium,
+                        ),
+                        subtitle: Text(
+                          'Новости и обновления',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Colors.grey[400],
+                        ),
+                        onTap: () async {
+                          final tgUrl = Uri.parse('tg://resolve?domain=eugene_medvedev_ref');
+                          final webUrl = Uri.parse('https://t.me/eugene_medvedev_ref');
+                          try {
+                            if (await canLaunchUrl(tgUrl)) {
+                              await launchUrl(tgUrl, mode: LaunchMode.externalApplication);
+                            } else {
+                              await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+                            }
+                          } catch (e) {
+                            await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16),
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(FontAwesomeIcons.telegram, color: Colors.blue[400], size: 20),
-                  ),
-                  title: Text(
-                    'Telegram канал',
-                    style: textTheme.titleMedium,
-                  ),
-                  subtitle: Text(
-                    'Новости и обновления',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey[400],
-                  ),
-                  onTap: () async {
-                    final Uri url = Uri.parse('https://t.me/your_channel');
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(url);
-                    }
-                  },
-                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
