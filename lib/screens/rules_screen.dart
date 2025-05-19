@@ -152,7 +152,7 @@ class _FullRulesScreenState extends State<FullRulesScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
         ),
         title: Text(
