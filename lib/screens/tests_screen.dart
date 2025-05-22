@@ -271,6 +271,7 @@ class TestsScreen extends StatelessWidget {
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -282,12 +283,15 @@ class TestsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                _buildExamInfo(context, Icons.help_outline, '210 вопросов'),
-                const SizedBox(width: 16),
-                _buildExamInfo(context, Icons.timer_outlined, 'Без ограничений'),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildExamInfo(context, Icons.help_outline, '210 вопросов'),
+                  const SizedBox(width: 16),
+                  _buildExamInfo(context, Icons.timer_outlined, 'Без ограничений'),
+                ],
+              ),
             ),
           ],
         ),
