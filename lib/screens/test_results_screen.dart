@@ -4,6 +4,7 @@ import 'exam_test_screen.dart';
 import '../services/favorites_service.dart';
 import 'test_wrong_answers_screen.dart';
 import '../services/test_history_service.dart';
+import '../services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/test_history.dart';
 
@@ -40,6 +41,8 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
   Future<void> _saveHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final service = TestHistoryService(prefs);
+    final streakService = StreakService(prefs);
+    
     final history = TestHistory(
       id: service.generateId(),
       testType: 'exam',
@@ -57,6 +60,7 @@ class _TestResultsScreenState extends State<TestResultsScreen> {
       }).toList(),
     );
     await service.saveTestResult(history);
+    await streakService.updateStreak();
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/bookmark.dart';
 import 'rules_screen.dart';
+import 'rules_screen.dart' show ImageRulesScreen;
 
 class BookmarksScreen extends StatelessWidget {
   const BookmarksScreen({super.key});
@@ -66,7 +67,7 @@ class BookmarksScreen extends StatelessWidget {
                     if (page != null) {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => FullRulesScreen(initialPage: page),
+                          builder: (context) => ImageRulesScreen(initialPage: page),
                         ),
                       );
                     } else {

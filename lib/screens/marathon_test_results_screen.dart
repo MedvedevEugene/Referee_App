@@ -3,6 +3,7 @@ import '../models/marathon_test.dart';
 import 'marathon_wrong_answers_screen.dart';
 import 'marathon_screen.dart';
 import '../services/test_history_service.dart';
+import '../services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/test_history.dart';
 
@@ -17,6 +18,8 @@ class MarathonTestResultsScreen extends StatelessWidget {
   Future<void> _saveHistory() async {
     final prefs = await SharedPreferences.getInstance();
     final service = TestHistoryService(prefs);
+    final streakService = StreakService(prefs);
+    
     final history = TestHistory(
       id: service.generateId(),
       testType: 'marathon',
@@ -34,6 +37,7 @@ class MarathonTestResultsScreen extends StatelessWidget {
       }).toList(),
     );
     await service.saveTestResult(history);
+    await streakService.updateStreak();
   }
 
   @override

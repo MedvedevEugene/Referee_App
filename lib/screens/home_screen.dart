@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'settings_screen.dart';
 import '../services/favorites_service.dart';
 import '../services/test_history_service.dart';
+import '../services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,24 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final favoriteIds = favoritesService.getFavoriteIds();
     final prefs = await SharedPreferences.getInstance();
     final historyService = TestHistoryService(prefs);
+    final streakService = StreakService(prefs);
     final history = historyService.getTestHistory();
 
-    // Активность: streak дней подряд с тестами
-    int streak = 0;
-    DateTime today = DateTime.now();
-    final daysWithTests = history.map((h) => DateTime(h.dateTime.year, h.dateTime.month, h.dateTime.day)).toSet().toList()..sort((a, b) => b.compareTo(a));
-    if (daysWithTests.isNotEmpty && daysWithTests.first == DateTime(today.year, today.month, today.day)) {
-      streak = 1;
-      for (int i = 1; i < daysWithTests.length; i++) {
-        if (daysWithTests[i - 1].difference(daysWithTests[i]).inDays == 1) {
-          streak++;
-        } else {
-          break;
-        }
-      }
-    } else {
-      streak = 0;
-    }
+    // Получаем streak из StreakService
+    final streak = streakService.getCurrentStreak();
 
     // Марафон рекорд
     int marathonMax = 0;

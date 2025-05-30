@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import '../models/bookmark.dart';
 import 'bookmarks_screen.dart';
 import 'rules_chapters_screen.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert';
 
 class RulesScreen extends StatelessWidget {
   const RulesScreen({super.key});
@@ -28,12 +32,12 @@ class RulesScreen extends StatelessWidget {
             iconColor: Colors.blue[400]!,
             iconBackground: Colors.blue[50]!,
             title: 'Правила игры',
-            subtitle: 'Полный текст правил',
+            subtitle: 'Полный текст правил (быстрый просмотр)',
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => FullRulesScreen(),
+                  builder: (context) => ImageRulesScreen(),
                 ),
               );
             },
@@ -118,35 +122,56 @@ class RulesScreen extends StatelessWidget {
   }
 }
 
-class FullRulesScreen extends StatefulWidget {
+class ImageRulesScreen extends StatefulWidget {
   final int? initialPage;
-  const FullRulesScreen({super.key, this.initialPage});
+  const ImageRulesScreen({super.key, this.initialPage});
 
   @override
-  State<FullRulesScreen> createState() => _FullRulesScreenState();
+  State<ImageRulesScreen> createState() => _ImageRulesScreenState();
 }
 
-class _FullRulesScreenState extends State<FullRulesScreen> {
-  final PdfViewerController _pdfViewerController = PdfViewerController();
+class _ImageRulesScreenState extends State<ImageRulesScreen> {
+  List<String> _imagePaths = [];
+  late final PageController _pageController;
   int _currentPage = 1;
+  bool _imagesLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialPage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _pdfViewerController.jumpToPage(widget.initialPage!);
-        setState(() {
-          _currentPage = widget.initialPage!;
-        });
-      });
-    }
+    _loadImages();
+  }
+
+  Future<void> _loadImages() async {
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+    final imagePaths = manifestMap.keys
+        .where((String key) => key.startsWith('assets/football_rulles/') && key.endsWith('.jpg'))
+        .toList();
+    // Сортируем по номеру страницы
+    imagePaths.sort((a, b) {
+      final reg = RegExp(r'(\d+)');
+      final aNum = int.tryParse(reg.allMatches(a).last.group(0) ?? '0') ?? 0;
+      final bNum = int.tryParse(reg.allMatches(b).last.group(0) ?? '0') ?? 0;
+      return aNum.compareTo(bNum);
+    });
+    _imagePaths = imagePaths;
+    _pageController = PageController(initialPage: (widget.initialPage ?? 1) - 1);
+    setState(() {
+      _imagesLoaded = true;
+      _currentPage = widget.initialPage ?? 1;
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -156,7 +181,7 @@ class _FullRulesScreenState extends State<FullRulesScreen> {
           },
         ),
         title: Text(
-          'Правила игры',
+          'Правила (картинки)',
           style: textTheme.displaySmall,
         ),
         actions: [
@@ -200,12 +225,12 @@ class _FullRulesScreenState extends State<FullRulesScreen> {
               if (result != null) {
                 final bookmarkProvider = Provider.of<BookmarkProvider>(context, listen: false);
                 final bookmark = Bookmark(
-                  id: 'page_${_currentPage}',
+                  id: 'page_$_currentPage',
                   title: 'Страница $_currentPage',
                   content: result.isEmpty ? 'Без описания' : result,
                   createdAt: DateTime.now(),
                 );
-                if (!bookmarkProvider.isBookmarked('page_${_currentPage}')) {
+                if (!bookmarkProvider.isBookmarked('page_$_currentPage')) {
                   bookmarkProvider.addBookmark(bookmark);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Страница $_currentPage добавлена в закладки')),
@@ -231,20 +256,69 @@ class _FullRulesScreenState extends State<FullRulesScreen> {
           ),
         ],
       ),
-      body: SfPdfViewer.asset(
-        'assets/pdf/football_rules.pdf',
-        controller: _pdfViewerController,
-        initialZoomLevel: 1.0,
-        enableDoubleTapZooming: true,
-        pageSpacing: 8,
-        scrollDirection: PdfScrollDirection.horizontal,
-        pageLayoutMode: PdfPageLayoutMode.single,
-        onPageChanged: (PdfPageChangedDetails details) {
-          setState(() {
-            _currentPage = details.newPageNumber;
-          });
-        },
-      ),
+      body: !_imagesLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+              children: [
+                Positioned.fill(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _imagePaths.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPage = index + 1;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      return Image.asset(
+                        _imagePaths[index],
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => const Center(child: Text('Ошибка загрузки страницы')), 
+                      );
+                    },
+                  ),
+                ),
+                if (_imagesLoaded && _imagePaths.length > 1)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 60,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            '$_currentPage',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Expanded(
+                            child: Slider(
+                              value: _currentPage.toDouble(),
+                              min: 1,
+                              max: _imagePaths.length.toDouble(),
+                              divisions: _imagePaths.length - 1,
+                              label: '$_currentPage',
+                              activeColor: Colors.blue,
+                              inactiveColor: Colors.grey,
+                              onChanged: (value) {
+                                setState(() {
+                                  _currentPage = value.round();
+                                  _pageController.jumpToPage(_currentPage - 1);
+                                });
+                              },
+                            ),
+                          ),
+                          Text(
+                            '${_imagePaths.length}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
     );
   }
 } 
