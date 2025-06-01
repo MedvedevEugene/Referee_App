@@ -19,7 +19,7 @@ class RulesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Правила',
+          'Правила игры',
           style: textTheme.displaySmall,
         ),
       ),
@@ -181,7 +181,7 @@ class _ImageRulesScreenState extends State<ImageRulesScreen> {
           },
         ),
         title: Text(
-          'Правила (картинки)',
+          'Правила игры',
           style: textTheme.displaySmall,
         ),
         actions: [
@@ -260,30 +260,39 @@ class _ImageRulesScreenState extends State<ImageRulesScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                Positioned.fill(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _imagePaths.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index + 1;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return Image.asset(
-                        _imagePaths[index],
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => const Center(child: Text('Ошибка загрузки страницы')), 
-                      );
-                    },
-                  ),
+                // Центрируем изображение между AppBar и слайдером
+                Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _imagePaths.length,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentPage = index + 1;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            return Image.asset(
+                              _imagePaths[index],
+                              fit: BoxFit.contain,
+                              alignment: Alignment.center,
+                              errorBuilder: (context, error, stackTrace) => const Center(child: Text('Ошибка загрузки страницы')),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                // Слайдер фиксируем внизу с отступом 70
                 if (_imagesLoaded && _imagePaths.length > 1)
                   Positioned(
                     left: 0,
                     right: 0,
-                    bottom: 60,
+                    bottom: 70,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(

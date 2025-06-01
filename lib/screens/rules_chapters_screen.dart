@@ -152,69 +152,67 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${widget.chapter.title} - ${widget.chapter.name}',
+          'Правила',
           style: textTheme.displaySmall,
         ),
       ),
-      body: Stack(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Positioned.fill(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: pageCount,
-              scrollDirection: Axis.horizontal,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final localPage = index + 1;
-                return Image.asset(
-                  'assets/rule ${widget.chapter.ruleNumber}/football_rules_page-${localPage}.jpg',
-                  fit: BoxFit.contain,
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                );
-              },
+          Expanded(
+            child: Center(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: pageCount,
+                scrollDirection: Axis.horizontal,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final localPage = index + 1;
+                  return Image.asset(
+                    'assets/rule ${widget.chapter.ruleNumber}/football_rules_page-${localPage}.jpg',
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                  );
+                },
+              ),
             ),
           ),
           if (pageCount > 1)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 60,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    Text(
-                      '${_currentPage + 1}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              child: Row(
+                children: [
+                  Text(
+                    '${_currentPage + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Expanded(
+                    child: Slider(
+                      value: (_currentPage + 1).toDouble(),
+                      min: 1,
+                      max: pageCount.toDouble(),
+                      divisions: pageCount - 1,
+                      label: '${_currentPage + 1}',
+                      activeColor: Colors.blue,
+                      inactiveColor: Colors.grey,
+                      onChanged: (value) {
+                        setState(() {
+                          _currentPage = value.round() - 1;
+                          _pageController.jumpToPage(_currentPage);
+                        });
+                      },
                     ),
-                    Expanded(
-                      child: Slider(
-                        value: (_currentPage + 1).toDouble(),
-                        min: 1,
-                        max: pageCount.toDouble(),
-                        divisions: pageCount - 1,
-                        label: '${_currentPage + 1}',
-                        activeColor: Colors.blue,
-                        inactiveColor: Colors.grey,
-                        onChanged: (value) {
-                          setState(() {
-                            _currentPage = value.round() - 1;
-                            _pageController.jumpToPage(_currentPage);
-                          });
-                        },
-                      ),
-                    ),
-                    Text(
-                      '$pageCount',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    '$pageCount',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ],
               ),
             ),
         ],
