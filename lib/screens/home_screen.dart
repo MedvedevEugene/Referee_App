@@ -6,6 +6,7 @@ import '../services/favorites_service.dart';
 import '../services/test_history_service.dart';
 import '../services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'calendar_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -136,6 +137,26 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Кнопка Календарь
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.calendar_month, color: Colors.white),
+                        label: Text('Календарь', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => CalendarScreen()),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 24),
