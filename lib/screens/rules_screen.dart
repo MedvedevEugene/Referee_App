@@ -8,6 +8,7 @@ import 'bookmarks_screen.dart';
 import 'rules_chapters_screen.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
+import 'questions_screen.dart';
 
 class RulesScreen extends StatelessWidget {
   const RulesScreen({super.key});
@@ -56,6 +57,21 @@ class RulesScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => RulesChaptersScreen(),
                 ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildRuleCard(
+            context: context,
+            icon: Icons.help_outline,
+            iconColor: Colors.teal[400]!,
+            iconBackground: Colors.teal[50]!,
+            title: 'Вопросы и ответы',
+            subtitle: 'Справочник по тестовым вопросам',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QuestionsScreen()),
               );
             },
           ),

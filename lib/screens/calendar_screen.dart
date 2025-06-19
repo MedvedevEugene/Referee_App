@@ -259,6 +259,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         leading: Text(_emojiForEventType(event.type), style: TextStyle(fontSize: 28)),
                         title: Text(event.title),
                         subtitle: Text(_eventSubtitle(event)),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.grey[600]),
+                          tooltip: 'Удалить',
+                          onPressed: () => _confirmDeleteEvent(event),
+                        ),
                       ))
                   .toList(),
             ),
@@ -351,6 +356,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return Colors.yellow[700]!;
       case EventType.rest:
         return Colors.grey;
+    }
+  }
+
+  void _confirmDeleteEvent(Event event) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить событие?'),
+        content: const Text('Вы действительно хотите удалить это событие?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      setState(() {
+        final key = DateTime(event.date.year, event.date.month, event.date.day);
+        _events[key]?.removeWhere((e) => e.id == event.id);
+        if (_events[key]?.isEmpty ?? false) {
+          _events.remove(key);
+        }
+      });
+      await _saveEvents();
     }
   }
 }
