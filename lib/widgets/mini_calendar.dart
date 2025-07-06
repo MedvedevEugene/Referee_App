@@ -84,10 +84,11 @@ class _MiniCalendarState extends State<MiniCalendar> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      margin: EdgeInsets.zero,
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: TableCalendar(
               firstDay: DateTime.utc(2020, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
@@ -99,18 +100,18 @@ class _MiniCalendarState extends State<MiniCalendar> {
                 titleCentered: true,
                 leftChevronVisible: false,
                 rightChevronVisible: false,
-                titleTextStyle: TextStyle(fontSize: 14, color: Colors.black),
+                titleTextStyle: TextStyle(fontSize: 10, color: Colors.black),
               ),
               daysOfWeekStyle: const DaysOfWeekStyle(
-                weekdayStyle: TextStyle(fontSize: 12, color: Colors.black),
-                weekendStyle: TextStyle(fontSize: 12, color: Colors.black),
+                weekdayStyle: TextStyle(fontSize: 9, color: Colors.black),
+                weekendStyle: TextStyle(fontSize: 9, color: Colors.black),
               ),
               calendarStyle: CalendarStyle(
                 outsideDaysVisible: false,
-                defaultTextStyle: const TextStyle(fontSize: 12, color: Colors.black),
-                weekendTextStyle: const TextStyle(fontSize: 12, color: Colors.black),
+                defaultTextStyle: const TextStyle(fontSize: 9, color: Colors.black),
+                weekendTextStyle: const TextStyle(fontSize: 9, color: Colors.black),
                 todayTextStyle: const TextStyle(
-                  fontSize: 12, 
+                  fontSize: 9, 
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -120,9 +121,11 @@ class _MiniCalendarState extends State<MiniCalendar> {
                 ),
                 markersAlignment: Alignment.bottomCenter,
                 disabledTextStyle: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 9,
                   color: Colors.black,
                 ),
+                cellMargin: EdgeInsets.zero,
+                cellPadding: EdgeInsets.zero,
               ),
               eventLoader: _getEventsForDay,
               calendarBuilders: CalendarBuilders(

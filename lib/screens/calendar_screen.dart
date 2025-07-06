@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/event.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:intl/date_symbol_data_local.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({Key? key}) : super(key: key);
@@ -21,6 +22,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void initState() {
     super.initState();
     _loadEvents();
+    initializeDateFormatting('ru_RU', null);
   }
 
   Future<void> _loadEvents() async {
@@ -213,6 +215,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       body: Column(
         children: [
           TableCalendar<Event>(
+            locale: 'ru_RU',
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
@@ -228,6 +231,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
               todayDecoration: BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
               selectedDecoration: BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
               markersAlignment: Alignment.bottomCenter,
+              defaultTextStyle: TextStyle(color: Colors.black),
+              weekendTextStyle: TextStyle(color: Colors.black),
             ),
             startingDayOfWeek: StartingDayOfWeek.monday,
             availableCalendarFormats: const {CalendarFormat.month: 'Месяц'},
@@ -237,7 +242,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               markerBuilder: (context, date, events) {
                 if (events.isEmpty) return null;
                 return Padding(
-                  padding: const EdgeInsets.only(top: 24.0),
+                  padding: const EdgeInsets.only(top: 30.0),
                   child: _buildEventMarkers(events),
                 );
               },

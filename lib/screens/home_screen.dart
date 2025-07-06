@@ -7,6 +7,8 @@ import '../services/test_history_service.dart';
 import '../services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/mini_calendar.dart';
+import 'calendar_screen.dart';
+import '../widgets/custom_mini_calendar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -85,7 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       'Добро пожаловать!',
-                      style: textTheme.displayMedium,
+                      style: textTheme.displayMedium?.copyWith(
+                        color: Colors.black,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -109,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             _buildStatItem(
                               context: context,
@@ -119,29 +123,37 @@ class _HomeScreenState extends State<HomeScreen> {
                               iconColor: Colors.orange,
                               iconBackground: Colors.orange[50]!,
                             ),
-                            _buildStatItem(
-                              context: context,
-                              icon: Icons.favorite,
-                              value: favoriteCount.toString(),
-                              label: 'Вопросов\nв избранном',
-                              iconColor: Colors.red[300]!,
-                              iconBackground: Colors.red[50]!,
+                            Expanded(
+                              child: Center(
+                                child: _buildStatItem(
+                                  context: context,
+                                  icon: Icons.favorite,
+                                  value: favoriteCount.toString(),
+                                  label: 'Вопросов\nв избранном',
+                                  iconColor: Colors.red[300]!,
+                                  iconBackground: Colors.red[50]!,
+                                ),
+                              ),
                             ),
-                            _buildStatItem(
-                              context: context,
-                              icon: Icons.emoji_events_outlined,
-                              value: marathonRecord.toString(),
-                              label: 'Марафон\nрекорд',
-                              iconColor: Colors.purple,
-                              iconBackground: Colors.purple[50]!,
+                            SizedBox(
+                              width: 200,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => CalendarScreen()),
+                                    );
+                                  },
+                                  child: const CustomMiniCalendar(),
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    // Мини-календарь
-                    const MiniCalendar(),
                     const SizedBox(height: 24),
                     Text(
                       'Социальные сети',
