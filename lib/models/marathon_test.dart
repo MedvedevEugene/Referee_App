@@ -60,11 +60,22 @@ class MarathonTest {
   static Future<MarathonTest> create({int count = 10}) async {
     final testService = TestService();
     final questions = await testService.getAllQuestions();
+    print('MarathonTest.create: Loaded ${questions.length} total questions');
+    
     if (questions.isEmpty) {
       throw Exception('No questions available for marathon');
     }
+    
     questions.shuffle();
     final selectedQuestions = questions.take(count).toList();
+    print('MarathonTest.create: Selected ${selectedQuestions.length} questions for marathon');
+    
+    // Проверяем первые несколько вопросов
+    for (int i = 0; i < selectedQuestions.length && i < 3; i++) {
+      final q = selectedQuestions[i];
+      print('Question $i: ID=${q.id}, Options=${q.options.length}, Answer=${q.answer}');
+    }
+    
     return MarathonTest(
       questions: selectedQuestions,
       startTime: DateTime.now(),

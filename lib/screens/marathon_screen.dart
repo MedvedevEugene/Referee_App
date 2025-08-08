@@ -32,9 +32,13 @@ class _MarathonScreenState extends State<MarathonScreen> {
     super.initState();
     _initializeFavorites();
     
+    print('Initializing marathon screen with ${widget.test.totalQuestions} questions');
+    
     // Предварительно перемешиваем варианты ответов для всех вопросов
     for (int i = 0; i < widget.test.totalQuestions; i++) {
-      _shuffledOptions[i] = [...widget.test.questions[i].options]..shuffle();
+      final question = widget.test.questions[i];
+      print('Question $i: ${question.options.length} options');
+      _shuffledOptions[i] = [...question.options]..shuffle();
     }
     
     // Восстанавливаем подтвержденные вопросы из сохраненных ответов
@@ -204,7 +208,23 @@ class _MarathonScreenState extends State<MarathonScreen> {
   }
 
   List<String> _getOptionsForQuestion(int index) {
-    return _shuffledOptions[index] ?? widget.test.questions[index].options;
+    final shuffledOptions = _shuffledOptions[index];
+    final originalOptions = widget.test.questions[index].options;
+    
+    print('Question $index - Original options: ${originalOptions.length}');
+    print('Question $index - Shuffled options: ${shuffledOptions?.length ?? 0}');
+    
+    if (shuffledOptions != null && shuffledOptions.isNotEmpty) {
+      return shuffledOptions;
+    }
+    
+    // Если перемешанные варианты недоступны, используем оригинальные
+    if (originalOptions.isNotEmpty) {
+      return originalOptions;
+    }
+    
+    print('WARNING: No options found for question $index');
+    return [];
   }
 
   void _moveToQuestion(int index) {
@@ -228,6 +248,10 @@ class _MarathonScreenState extends State<MarathonScreen> {
     final isConfirmed = _confirmedQuestions.contains(_currentQuestionIndex);
     final options = _getOptionsForQuestion(_currentQuestionIndex);
     final isFavorite = _favoriteQuestions.contains(question.id);
+
+    print('Building question $_currentQuestionIndex with ${options.length} options');
+    print('Question text: ${question.question}');
+    print('Options: $options');
 
     return WillPopScope(
       onWillPop: () async {
