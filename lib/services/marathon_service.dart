@@ -1,6 +1,6 @@
 import 'package:shared_preferences.dart';
 import '../models/marathon_test.dart';
-import '../models/question.dart';
+import '../models/test_models.dart';
 import 'test_service.dart';
 
 class MarathonService {

@@ -2,7 +2,6 @@ import 'dart:math';
 import '../models/test_models.dart';
 import '../services/test_service.dart';
 import '../services/favorites_service.dart';
-import '../models/question.dart';
 
 class FavoriteTest {
   static const int questionCount = 10;
