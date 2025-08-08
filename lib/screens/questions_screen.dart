@@ -24,7 +24,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   }
 
   Future<void> _loadQuestions() async {
-    final String jsonString = await rootBundle.loadString('assets/json/tests.json');
+    final String jsonString = await rootBundle.loadString('assets/json/exam.json');
     final List<dynamic> jsonData = json.decode(jsonString);
     setState(() {
       _questions = jsonData;

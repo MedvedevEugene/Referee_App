@@ -75,7 +75,7 @@ flutter:
     - assets/football_rulles/
     - assets/pdf/
     - assets/json/
-    - assets/json/tests.json
+    - assets/json/exam.json
     - assets/rule 1/
     - assets/rule 2/
     - assets/rule 3/

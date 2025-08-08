@@ -10,7 +10,7 @@ class TestService {
   Future<List<Question>> loadQuestions() async {
     if (_allQuestions != null) return _allQuestions!;
     
-    final String jsonString = await rootBundle.loadString('assets/json/tests.json');
+    final String jsonString = await rootBundle.loadString('assets/json/exam.json');
     final List<dynamic> jsonList = json.decode(jsonString);
     _allQuestions = jsonList.map((json) => Question.fromJson(json)).toList();
     return _allQuestions!;
