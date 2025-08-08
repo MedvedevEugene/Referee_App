@@ -78,7 +78,7 @@ class MarathonTest {
       final Map<String, dynamic> data = {
         'questions': questions.map((q) => {
           'id': q.id,
-          'rules': q.rules,
+          if (q.rules != null) 'rules': q.rules,
           'question': q.question,
           'options': q.options,
           'answer': q.answer,
@@ -108,7 +108,7 @@ class MarathonTest {
       final List<Question> questions = (data['questions'] as List).map((q) {
         return Question(
           id: q['id'],
-          rules: List<String>.from(q['rules']),
+          rules: q['rules'] != null ? List<String>.from(q['rules']) : null,
           question: q['question'],
           options: List<String>.from(q['options']),
           answer: q['answer'],

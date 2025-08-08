@@ -2,14 +2,14 @@ import 'dart:convert';
 
 class Question {
   final int id;
-  final List<String> rules;
+  final List<String>? rules;
   final String question;
   final List<String> options;
   final String answer;
   
   Question({
     required this.id,
-    required this.rules,
+    this.rules,
     required this.question,
     required this.options,
     required this.answer,
@@ -18,7 +18,7 @@ class Question {
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
       id: json['id'] as int,
-      rules: List<String>.from(json['rules']),
+      rules: json['rules'] != null ? List<String>.from(json['rules']) : null,
       question: json['question'] as String,
       options: List<String>.from(json['options']),
       answer: json['answer'] as String,
@@ -27,7 +27,7 @@ class Question {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'rules': rules,
+    if (rules != null) 'rules': rules,
     'question': question,
     'options': options,
     'answer': answer,
