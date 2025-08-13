@@ -16,13 +16,35 @@ class Question {
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {
-    return Question(
+    print('Question.fromJson: Parsing question ${json['id']}');
+    
+    // Проверяем наличие поля options
+    if (!json.containsKey('options')) {
+      print('ERROR: Question ${json['id']} has no options field!');
+      print('Available fields: ${json.keys.toList()}');
+      return Question(
+        id: json['id'] as int,
+        rules: json['rules'] != null ? List<String>.from(json['rules']) : null,
+        question: json['question'] as String,
+        options: [], // Пустой список если options нет
+        answer: json['answer'] as String,
+      );
+    }
+    
+    final optionsList = json['options'] as List;
+    print('Question.fromJson: Options count = ${optionsList.length}');
+    print('Question.fromJson: Options content = $optionsList');
+    
+    final question = Question(
       id: json['id'] as int,
       rules: json['rules'] != null ? List<String>.from(json['rules']) : null,
       question: json['question'] as String,
-      options: List<String>.from(json['options']),
+      options: List<String>.from(optionsList),
       answer: json['answer'] as String,
     );
+    
+    print('Question.fromJson: Created question with ${question.options.length} options');
+    return question;
   }
 
   Map<String, dynamic> toJson() => {

@@ -72,27 +72,27 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/football_rulles/
+    - assets/rules/football_rules/
     - assets/pdf/
     - assets/json/
     - assets/json/exam.json
-    - assets/rule 1/
-    - assets/rule 2/
-    - assets/rule 3/
-    - assets/rule 4/
-    - assets/rule 5/
-    - assets/rule 6/
-    - assets/rule 7/
-    - assets/rule 8/
-    - assets/rule 9/
-    - assets/rule 10/
-    - assets/rule 11/
-    - assets/rule 12/
-    - assets/rule 13/
-    - assets/rule 14/
-    - assets/rule 15/
-    - assets/rule 16/
-    - assets/rule 17/
+    - assets/rules/rule1/
+    - assets/rules/rule2/
+    - assets/rules/rule3/
+    - assets/rules/rule4/
+    - assets/rules/rule5/
+    - assets/rules/rule6/
+    - assets/rules/rule7/
+    - assets/rules/rule8/
+    - assets/rules/rule9/
+    - assets/rules/rule10/
+    - assets/rules/rule11/
+    - assets/rules/rule12/
+    - assets/rules/rule13/
+    - assets/rules/rule14/
+    - assets/rules/rule15/
+    - assets/rules/rule16/
+    - assets/rules/rule17/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

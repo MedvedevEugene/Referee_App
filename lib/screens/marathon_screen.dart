@@ -34,11 +34,13 @@ class _MarathonScreenState extends State<MarathonScreen> {
     
     print('Initializing marathon screen with ${widget.test.totalQuestions} questions');
     
-    // Предварительно перемешиваем варианты ответов для всех вопросов
+    // Проверяем, что у всех вопросов есть варианты ответов
     for (int i = 0; i < widget.test.totalQuestions; i++) {
       final question = widget.test.questions[i];
-      print('Question $i: ${question.options.length} options');
-      _shuffledOptions[i] = [...question.options]..shuffle();
+      print('Question $i: ID=${question.id}, Options=${question.options.length}');
+      if (question.options.isEmpty) {
+        print('WARNING: Question $i has no options!');
+      }
     }
     
     // Восстанавливаем подтвержденные вопросы из сохраненных ответов
@@ -208,23 +210,12 @@ class _MarathonScreenState extends State<MarathonScreen> {
   }
 
   List<String> _getOptionsForQuestion(int index) {
-    final shuffledOptions = _shuffledOptions[index];
-    final originalOptions = widget.test.questions[index].options;
+    final question = widget.test.questions[index];
+    print('Question $index (ID: ${question.id}) - Direct access: ${question.options.length} options');
+    print('Question $index (ID: ${question.id}) - Options content: ${question.options}');
     
-    print('Question $index - Original options: ${originalOptions.length}');
-    print('Question $index - Shuffled options: ${shuffledOptions?.length ?? 0}');
-    
-    if (shuffledOptions != null && shuffledOptions.isNotEmpty) {
-      return shuffledOptions;
-    }
-    
-    // Если перемешанные варианты недоступны, используем оригинальные
-    if (originalOptions.isNotEmpty) {
-      return originalOptions;
-    }
-    
-    print('WARNING: No options found for question $index');
-    return [];
+    // Просто возвращаем варианты ответов напрямую
+    return question.options;
   }
 
   void _moveToQuestion(int index) {

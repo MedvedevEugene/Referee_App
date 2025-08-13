@@ -162,7 +162,7 @@ class _ImageRulesScreenState extends State<ImageRulesScreen> {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
     final imagePaths = manifestMap.keys
-        .where((String key) => key.startsWith('assets/football_rulles/') && key.endsWith('.jpg'))
+        .where((String key) => key.startsWith('assets/rules/football_rules/') && key.endsWith('.jpg'))
         .toList();
     // Сортируем по номеру страницы
     imagePaths.sort((a, b) {

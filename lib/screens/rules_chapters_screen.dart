@@ -174,7 +174,7 @@ class _ChapterViewScreenState extends State<ChapterViewScreen> {
                     itemBuilder: (context, index) {
                       final localPage = index + 1;
                       return Image.asset(
-                        'assets/rule ${widget.chapter.ruleNumber}/football_rules_page-${localPage}.jpg',
+                        'assets/rules/rule${widget.chapter.ruleNumber}/football_rules_page-${localPage}.jpg',
                         fit: BoxFit.contain,
                         alignment: Alignment.center,
                         errorBuilder: (context, error, stackTrace) => const Center(child: Text('Ошибка загрузки страницы')),

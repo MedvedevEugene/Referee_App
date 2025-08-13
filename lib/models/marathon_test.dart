@@ -76,6 +76,14 @@ class MarathonTest {
       print('Question $i: ID=${q.id}, Options=${q.options.length}, Answer=${q.answer}');
     }
     
+    // Проверяем все выбранные вопросы
+    for (int i = 0; i < selectedQuestions.length; i++) {
+      final q = selectedQuestions[i];
+      if (q.options.isEmpty) {
+        print('WARNING: Question $i (ID: ${q.id}) has no options!');
+      }
+    }
+    
     return MarathonTest(
       questions: selectedQuestions,
       startTime: DateTime.now(),
