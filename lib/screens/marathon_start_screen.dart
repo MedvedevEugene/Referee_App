@@ -13,7 +13,7 @@ class _MarathonStartScreenState extends State<MarathonStartScreen> {
   bool _isLoading = true;
   bool _hasSavedProgress = false;
   int _questionCount = 10;
-  int _maxQuestions = 210;
+  int _maxQuestions = 409;
 
   @override
   void initState() {

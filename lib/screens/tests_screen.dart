@@ -287,7 +287,7 @@ class TestsScreen extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildExamInfo(context, Icons.help_outline, '210 вопросов'),
+                  _buildExamInfo(context, Icons.help_outline, '409 вопросов'),
                   const SizedBox(width: 16),
                   _buildExamInfo(context, Icons.timer_outlined, 'Без ограничений'),
                 ],

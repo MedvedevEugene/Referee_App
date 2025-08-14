@@ -14,7 +14,7 @@ class MarathonOptionsScreen extends StatefulWidget {
 class _MarathonOptionsScreenState extends State<MarathonOptionsScreen> {
   bool _isLoading = false;
   int _questionCount = 10;
-  int _maxQuestions = 210;
+  int _maxQuestions = 409;
 
   @override
   void initState() {
